@@ -15,13 +15,15 @@ public class TestMultiPlayer {
         String oneStepController = "controllers.multiPlayer.sampleOneStepLookAhead.Agent";
         String sampleMCTSController = "controllers.multiPlayer.sampleMCTS.Agent";
         String sampleOLMCTSController = "controllers.multiPlayer.sampleOLMCTS.Agent";
+
         String sampleRHEAController = "controllers.multiPlayer.sampleRHEA.Agent";
         String sampleRSController = "controllers.multiPlayer.sampleRS.Agent";
         String humanController = "controllers.multiPlayer.human.Agent";
+        String macroRHEA = "controllers.multiPlayer.RHEA.Agent";
 
         // Set here the controllers used in the games (need 2 separated by
         // space).
-        String controllers = humanController + " " + sampleRHEAController;
+        String controllers = humanController + " " + sampleOLMCTSController;
         // String controllers = sampleOLMCTSController + " " +
         // sampleOLMCTSController;
 

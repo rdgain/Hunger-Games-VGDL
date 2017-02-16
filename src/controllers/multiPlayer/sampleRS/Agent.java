@@ -12,8 +12,8 @@ import java.util.*;
 public class Agent extends AbstractMultiPlayer {
 
     // variable
-    private int SIMULATION_DEPTH = 10;
-    private double DISCOUNT = 1; //0.99;
+    private int SIMULATION_DEPTH = 20;
+    private double DISCOUNT = 0.99;
 
     // constants
     private final long BREAK_MS = 10;
@@ -152,13 +152,14 @@ public class Agent extends AbstractMultiPlayer {
         action_mapping = new HashMap[noPlayers];
         for (int i = 0; i < noPlayers; i++) {
             ArrayList<Types.ACTIONS> actions = stateObs.getAvailableActions(i);
-            N_ACTIONS[i] = actions.size();
+            N_ACTIONS[i] = actions.size() + 1;
             action_mapping[i] = new HashMap<>();
             int k = 0;
             for (Types.ACTIONS action : actions) {
                 action_mapping[i].put(k, action);
                 k++;
             }
+            action_mapping[i].put(k, Types.ACTIONS.ACTION_NIL);
         }
 
         NUM_INDIVIDUALS = 0;

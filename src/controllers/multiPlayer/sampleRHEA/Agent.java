@@ -250,13 +250,14 @@ public class Agent extends AbstractMultiPlayer {
         action_mapping = new HashMap[noPlayers];
         for (int i = 0; i < noPlayers; i++) {
             ArrayList<Types.ACTIONS> actions = stateObs.getAvailableActions(i);
-            N_ACTIONS[i] = actions.size();
+            N_ACTIONS[i] = actions.size() + 1;
             action_mapping[i] = new HashMap<>();
             int k = 0;
             for (Types.ACTIONS action : actions) {
                 action_mapping[i].put(k, action);
                 k++;
             }
+            action_mapping[i].put(k, Types.ACTIONS.ACTION_NIL);
         }
 
         population = new Individual[POPULATION_SIZE];
