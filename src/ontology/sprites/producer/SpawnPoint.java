@@ -100,8 +100,15 @@ public class SpawnPoint extends SpriteProducer
         }
 
         if (follow != null) {
-            ArrayList<VGDLSprite> sprites = game.getSprites(ifollow);
-            this.setPosition(sprites.get(0).getPosition());
+            ArrayList<VGDLSprite> sprites = new ArrayList<>();
+            for (int i : game.getSubTypes(ifollow)) {
+                ArrayList<VGDLSprite> sp = game.getSprites(i);
+                if (!sp.isEmpty()) {sprites = sp; break;}
+            }
+
+            if (!sprites.isEmpty())  this.setPosition(sprites.get(0).getPosition());
+
+            //get children of this sprite type
         }
     }
 

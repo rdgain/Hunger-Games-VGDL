@@ -11,12 +11,22 @@ BasicGame no_players=2 square_size=30
             bow > img=oryx/bow1
             sword > img=oryx/sword3
 
+        #-----------------------------------------------------------------------------------------------
+        #avatar stuff
+
         avatar > ShootAvatar speed=1
             avatarA > stype=hitA img=newset/girl2 frameRate=8 color=RED
+                avVisA > hidden=False,False
+                avHidA > hidden=False,True
             avatarB > stype=hitB img=newset/man3 frameRate=8 color=BLUE
+                avVisB > hidden=False,False invisible=False
+                avHidB > hidden=True,False invisible=True
         hit > Flicker img=oryx/staff1 shrinkfactor=0.5
             hitA > singleton=True
             hitB > singleton=True
+
+        #end of avatar stuff
+        #---------------------------------------------------------------------------------------------
 
         animals > RandomNPC cons=2
             bear > img=oryx/bear1 cooldown=8 speed=0.3
@@ -28,7 +38,7 @@ BasicGame no_players=2 square_size=30
             butterfly > img=newset/butterfly1 frameRate=8 speed=0.8 cooldown=2
                 hideBut > invisible=True hidden=True,False
                 showBut > invisible=False hidden=False,False
-
+                
         #-----------------------------------------------------------------------------------------------
         #fog of war stuff
 
@@ -62,12 +72,23 @@ BasicGame no_players=2 square_size=30
 
     InteractionSet
 
+        #------------------------
         #fog of war
         fog removeFogA > transformTo stype=fogB
         fog removeFogB > transformTo stype=fogA
         fogA removeFogA > transformTo stype=noFog
         fogB removeFogB > transformTo stype=noFog
 
+        #------------------------
+        #hiding world objects based on fog of war
+
+        avVisA fog fogA > transformTo stype=avHidA
+        avVisB fog fogB > transformTo stype=avHidB
+        avHidA fogB noFog > transformTo stype=avVisA
+        avHidB fogA noFog > transformTo stype=avVisB
+
+        #------------------------
+        #object interaction
 
         animals animals avatar EOS wall tree > stepBack pixelPerfect=True
         flying flying EOS > stepBack pixelPerfect=True
@@ -83,8 +104,8 @@ BasicGame no_players=2 square_size=30
     
     LevelMapping
         . > water land fog
-        A > avatarA land fog spawnRmFogA
-        B > avatarB land fog spawnRmFogB
+        A > avVisA land fog spawnRmFogA
+        B > avVisB land fog spawnRmFogB
         h > tree land  fog
         t > tree land fog
         w > land wall fog
