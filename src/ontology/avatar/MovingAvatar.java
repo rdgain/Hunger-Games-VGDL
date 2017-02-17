@@ -140,7 +140,7 @@ public class MovingAvatar extends VGDLSprite {
 
         Types.ACTIONS action;
         if (game.no_players > 1) {
-            action = this.player.act(game.getObservationMulti(), ect.copy());
+            action = this.player.act(game.getObservationMulti(playerID), ect.copy());
         } else {
             action = this.player.act(game.getObservation(), ect.copy());
         }

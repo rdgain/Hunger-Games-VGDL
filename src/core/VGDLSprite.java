@@ -9,13 +9,8 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
@@ -178,7 +173,7 @@ public abstract class VGDLSprite {
     /**
      * If true, this sprite is never present in the observations passed to the controller.
      */
-    public boolean hidden;
+    public String hidden;
     
     /**
      * Indicates if the tile support autotiling
@@ -1061,7 +1056,7 @@ public abstract class VGDLSprite {
         if(other.frameRate != this.frameRate) return false;
         if(other.spriteID != this.spriteID) return false;
         if(other.isFirstTick != this.isFirstTick) return false;
-        if(other.hidden != this.hidden) return false;
+        if(!Objects.equals(other.hidden, this.hidden)) return false;
         if(other.healthPoints != this.healthPoints) return false;
         if(other.maxHealthPoints != this.maxHealthPoints) return false;
         if(other.limitHealthPoints != this.limitHealthPoints) return false;

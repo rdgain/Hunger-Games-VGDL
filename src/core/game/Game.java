@@ -57,7 +57,7 @@ public abstract class Game
      * Content encloses information about the class of the object and its parameters.
      */
     protected Content[] classConst;
-    
+
     /**
      * List of template sprites, one for each object in the above
      * "classConst" array.
@@ -184,7 +184,7 @@ public abstract class Game
      * Handling when the window is closed
      */
     public static WindowInput wi = new WindowInput();
-    
+
     /**
      * Size of the block in pixels.
      */
@@ -423,62 +423,62 @@ public abstract class Game
             resources_colors[r.resource_type] = r.color;
         }
     }
-    
+
     /**
      * Check if the current itype has no children nodes
      * @param itype	sprite index
      * @return		true if its lead node, false otherwise
      */
     private boolean isLeafNode(int itype){
-    	SpriteContent sc = (SpriteContent)classConst[itype];
-    	
-    	return sc.subtypes.size() <= 1 || 
-    			sc.subtypes.get(sc.subtypes.size() - 1) == itype;
+        SpriteContent sc = (SpriteContent)classConst[itype];
+
+        return sc.subtypes.size() <= 1 ||
+                sc.subtypes.get(sc.subtypes.size() - 1) == itype;
     }
-    
+
     /**
      * Get all parent sprites for a certain sprite
      * @param itype id for the current node
      * @return a list of all parent nodes' ids
      */
     private ArrayList<Integer> parentNodes(int itype){
-    	SpriteContent sc = (SpriteContent)classConst[itype];
-    	
-    	ArrayList<Integer> parents = new ArrayList<Integer>();
-    	parents.addAll(sc.itypes);
-    	parents.remove(parents.size() - 1);
-    	
-    	return parents;
+        SpriteContent sc = (SpriteContent)classConst[itype];
+
+        ArrayList<Integer> parents = new ArrayList<Integer>();
+        parents.addAll(sc.itypes);
+        parents.remove(parents.size() - 1);
+
+        return parents;
     }
-    
+
     /**
      * Expand a non leaf node using its children
      * @param itype	sprite index
      * @return		a list of all leaf children under the hierarchy of itype sprite
      */
     private ArrayList<String> expandNonLeafNode(int itype){
-    	ArrayList<String> result = new ArrayList<String>();
-    	boolean[] visited = new boolean[classConst.length];
-    	ArrayList<Integer> queue = new ArrayList<Integer>();
-    	queue.add(itype);
-    	
-    	while(!queue.isEmpty()){
-    		int current = queue.remove(0);
-    		if(visited[current]){
-    			continue;
-    		}
-    		
-    		if(isLeafNode(current)){
-    			result.add(VGDLRegistry.GetInstance().getRegisteredSpriteKey(current));
-    		}
-    		else{
-    			SpriteContent sc = (SpriteContent)classConst[current];
-    			queue.addAll(sc.subtypes);
-    		}
-    		visited[current] = true;
-    	}
-    	
-    	return result;
+        ArrayList<String> result = new ArrayList<String>();
+        boolean[] visited = new boolean[classConst.length];
+        ArrayList<Integer> queue = new ArrayList<Integer>();
+        queue.add(itype);
+
+        while(!queue.isEmpty()){
+            int current = queue.remove(0);
+            if(visited[current]){
+                continue;
+            }
+
+            if(isLeafNode(current)){
+                result.add(VGDLRegistry.GetInstance().getRegisteredSpriteKey(current));
+            }
+            else{
+                SpriteContent sc = (SpriteContent)classConst[current];
+                queue.addAll(sc.subtypes);
+            }
+            visited[current] = true;
+        }
+
+        return result;
     }
 
     /**
@@ -514,7 +514,7 @@ public abstract class Game
             return Types.TYPE_NPC;
 
         //Is it immovable?
-         if(sp.is_static)
+        if(sp.is_static)
             return Types.TYPE_STATIC;
 
         //is it created by the avatar?
@@ -523,112 +523,112 @@ public abstract class Game
 
         return Types.TYPE_MOVABLE;
     }
-    
+
     /**
      * Convert a sprite content object to Sprite Data object
      * @param sc	sprite content object for a certain sprite
      * @return		sprite data object for the current sprite content
      */
     private SpriteData initializeSpriteData(SpriteContent sc){
-    	SpriteData data = new SpriteData();
-    	data.name = sc.identifier;
-    	data.type = sc.referenceClass;
-    	
-    	VGDLSprite sprite = VGDLFactory.GetInstance().createSprite(sc, new Vector2d(), new Dimension(1, 1));
-    	switch(getSpriteCategory(sprite)){
-    	case Types.TYPE_NPC:
-    		data.isNPC = true;
-    		break;
-    	case Types.TYPE_AVATAR:
-    		data.isAvatar = true;
-    		break;
-    	case Types.TYPE_PORTAL:
-    		data.isPortal = true;
-    		break;
-    	case Types.TYPE_RESOURCE:
-    		data.isResource = true;
-    		break;
-    	case Types.TYPE_STATIC:
-    		data.isStatic = true;
-    		break;
-    	}
-    	
-    	ArrayList<String> dependentSprites = sprite.getDependentSprites();
-    	for(String s:dependentSprites){
-    		ArrayList<String> expandedSprites = expandNonLeafNode(VGDLRegistry.GetInstance().getRegisteredSpriteValue(s));
-    		data.sprites.addAll(expandedSprites);
-    	}
-    	
-    	return data;
+        SpriteData data = new SpriteData();
+        data.name = sc.identifier;
+        data.type = sc.referenceClass;
+
+        VGDLSprite sprite = VGDLFactory.GetInstance().createSprite(sc, new Vector2d(), new Dimension(1, 1));
+        switch(getSpriteCategory(sprite)){
+            case Types.TYPE_NPC:
+                data.isNPC = true;
+                break;
+            case Types.TYPE_AVATAR:
+                data.isAvatar = true;
+                break;
+            case Types.TYPE_PORTAL:
+                data.isPortal = true;
+                break;
+            case Types.TYPE_RESOURCE:
+                data.isResource = true;
+                break;
+            case Types.TYPE_STATIC:
+                data.isStatic = true;
+                break;
+        }
+
+        ArrayList<String> dependentSprites = sprite.getDependentSprites();
+        for(String s:dependentSprites){
+            ArrayList<String> expandedSprites = expandNonLeafNode(VGDLRegistry.GetInstance().getRegisteredSpriteValue(s));
+            data.sprites.addAll(expandedSprites);
+        }
+
+        return data;
     }
-    
+
     /**
      * Get an array of sprite data objects for all leaf sprite nodes.
      * @return	Array of sprite data
      */
     public ArrayList<SpriteData> getSpriteData(){
-    	ArrayList<SpriteData> result = new ArrayList<SpriteData>();
-    	
-    	for(int i = 0; i < classConst.length; i++){
-    		SpriteContent sc = (SpriteContent)classConst[i];
-    		if(isLeafNode(i)){
-    			result.add(initializeSpriteData(sc));
-    		}
-    	}
-    	
-    	return result;
+        ArrayList<SpriteData> result = new ArrayList<SpriteData>();
+
+        for(int i = 0; i < classConst.length; i++){
+            SpriteContent sc = (SpriteContent)classConst[i];
+            if(isLeafNode(i)){
+                result.add(initializeSpriteData(sc));
+            }
+        }
+
+        return result;
     }
-    
+
     /**
      * Construct and return a temporary avatar sprite
      * @return a temproary avatar sprite
      */
     public VGDLSprite getTempAvatar(SpriteData sprite){
-    	avatarId = VGDLRegistry.GetInstance().getRegisteredSpriteValue(sprite.name);
-    	if(((SpriteContent)classConst[avatarId]).referenceClass != null){
-    		VGDLSprite result = VGDLFactory.GetInstance().createSprite((SpriteContent) classConst[avatarId], 
-    				new Vector2d(), new Dimension(1, 1));
-    		if(result != null){
-    			return result;
-    		}
-    	}
-    	
-    	return null;
+        avatarId = VGDLRegistry.GetInstance().getRegisteredSpriteValue(sprite.name);
+        if(((SpriteContent)classConst[avatarId]).referenceClass != null){
+            VGDLSprite result = VGDLFactory.GetInstance().createSprite((SpriteContent) classConst[avatarId],
+                    new Vector2d(), new Dimension(1, 1));
+            if(result != null){
+                return result;
+            }
+        }
+
+        return null;
     }
-    
+
     /**
      * Return an array of termination data objects. These objects represents 
      * the termination conditions for the game
      * @return array of Termination Data objects
      */
     public ArrayList<TerminationData> getTerminationData(){
-    	ArrayList<TerminationData> result = new ArrayList<TerminationData>();
-    	
-    	TerminationData td;
-    	for(Termination tr:terminations){
-    		td = new TerminationData();
-    		int lastDot = tr.getClass().getName().lastIndexOf('.');
-    		td.type = tr.getClass().getName().substring(lastDot + 1);
-    		td.limit = tr.limit;
-    		td.win = tr.win;
-    		
-    		ArrayList<String> sprites = tr.getTerminationSprites();
-    		for(String s:sprites){
-    			int itype = VGDLRegistry.GetInstance().getRegisteredSpriteValue(s);
-    			if(isLeafNode(itype)){
-    				td.sprites.add(s);
-    			}
-    			else{
-    				td.sprites.addAll(expandNonLeafNode(itype));
-    			}
-    		}
-    		
-    		result.add(td);
-    	}
-    	
-    	return result;
+        ArrayList<TerminationData> result = new ArrayList<TerminationData>();
+
+        TerminationData td;
+        for(Termination tr:terminations){
+            td = new TerminationData();
+            int lastDot = tr.getClass().getName().lastIndexOf('.');
+            td.type = tr.getClass().getName().substring(lastDot + 1);
+            td.limit = tr.limit;
+            td.win = tr.win;
+
+            ArrayList<String> sprites = tr.getTerminationSprites();
+            for(String s:sprites){
+                int itype = VGDLRegistry.GetInstance().getRegisteredSpriteValue(s);
+                if(isLeafNode(itype)){
+                    td.sprites.add(s);
+                }
+                else{
+                    td.sprites.addAll(expandNonLeafNode(itype));
+                }
+            }
+
+            result.add(td);
+        }
+
+        return result;
     }
-    
+
     /**
      * Get a list of interaction data objects between two sprite types. 
      * These objects represents the effect happened to the first sprite type.
@@ -637,53 +637,53 @@ public abstract class Game
      * @return			array of interaction data objects.
      */
     public ArrayList<InteractionData> getInteractionData(int itype1, int itype2){
-    	ArrayList<InteractionData> results = new ArrayList<InteractionData>();
-    	
-    	ArrayList<Integer> parent1 = new ArrayList<Integer>();
-    	ArrayList<Integer> parent2 = new ArrayList<Integer>();
-    	
-    	if(itype1 != -1){
-    		parent1.addAll(parentNodes(itype1));
-    		parent1.add(itype1);
-    	}
-    	
-    	if(itype2 != -1){
-    		parent2.addAll(parentNodes(itype2));
-    		parent2.add(itype2);
-    	}
-    	
-    	ArrayList<Effect> effects = new ArrayList<Effect>();
-    	if(parent1.size() > 0 && parent2.size() > 0){
-    		for(int p1:parent1){
-    			for(int p2:parent2){
-    				effects.addAll(getCollisionEffects(p1, p2));
-    			}
-    		}
-    	}
-    	else if(parent1.size() > 0){
-    		for(int p1:parent1){
-    			effects.addAll(getEosEffects(p1));
+        ArrayList<InteractionData> results = new ArrayList<InteractionData>();
 
-    		}
-    	}
-    	else if(parent2.size() > 0){
-    		for(int p2:parent2){
-    			effects.addAll(getEosEffects(p2));
-    		}
-    	}
-    	
-    	InteractionData temp;
-    	for(Effect e:effects){
-    		temp = new InteractionData();
-    		temp.type = e.getClass().getName();
-    		temp.type = temp.type.substring(temp.type.lastIndexOf('.') + 1);
-    		temp.scoreChange = e.scoreChange;
-    		temp.sprites.addAll(e.getEffectSprites());
-    			
-    		results.add(temp);
-     	}
+        ArrayList<Integer> parent1 = new ArrayList<Integer>();
+        ArrayList<Integer> parent2 = new ArrayList<Integer>();
 
-    	return results;
+        if(itype1 != -1){
+            parent1.addAll(parentNodes(itype1));
+            parent1.add(itype1);
+        }
+
+        if(itype2 != -1){
+            parent2.addAll(parentNodes(itype2));
+            parent2.add(itype2);
+        }
+
+        ArrayList<Effect> effects = new ArrayList<Effect>();
+        if(parent1.size() > 0 && parent2.size() > 0){
+            for(int p1:parent1){
+                for(int p2:parent2){
+                    effects.addAll(getCollisionEffects(p1, p2));
+                }
+            }
+        }
+        else if(parent1.size() > 0){
+            for(int p1:parent1){
+                effects.addAll(getEosEffects(p1));
+
+            }
+        }
+        else if(parent2.size() > 0){
+            for(int p2:parent2){
+                effects.addAll(getEosEffects(p2));
+            }
+        }
+
+        InteractionData temp;
+        for(Effect e:effects){
+            temp = new InteractionData();
+            temp.type = e.getClass().getName();
+            temp.type = temp.type.substring(temp.type.lastIndexOf('.') + 1);
+            temp.scoreChange = e.scoreChange;
+            temp.sprites.addAll(e.getEffectSprites());
+
+            results.add(temp);
+        }
+
+        return results;
     }
 
     /**
@@ -712,9 +712,9 @@ public abstract class Game
             //Create the space for the sprites and effects of this type.
             spriteGroups[i].clear();
         }
-        
+
         if(kill_list != null){
-        	kill_list.clear();
+            kill_list.clear();
         }
         for(int j = 0; j < spriteGroups.length; ++j)
         {
@@ -736,7 +736,7 @@ public abstract class Game
      */
     public void initForwardModel()
     {
-        fwdModel = new ForwardModel(this);
+        fwdModel = new ForwardModel(this,0);
         fwdModel.update(this);
     }
 
@@ -844,7 +844,7 @@ public abstract class Game
             this.gameCycle(); //Execute a game cycle.
         }
 
-        //Update the forward model for the game state sent to the controller.
+        //Update the forward model for the game state sent to the controllers.
         fwdModel.update(this);
 
         return handleResult();
@@ -886,7 +886,7 @@ public abstract class Game
 
         //Play until the game is ended
         while(!isEnded && !wi.windowClosed)
-        {	
+        {
             //Determine the time to adjust framerate.
             long then = System.currentTimeMillis();
 
@@ -904,19 +904,19 @@ public abstract class Game
 
             //Update the frame title to reflect current score and tick.
             this.setTitle(frame);
-            
+
             if(firstRun && isHuman){
-            	if(CompetitionParameters.dialogBoxOnStartAndEnd){
-            		JOptionPane.showMessageDialog(frame, 
-            				"Click OK to start.");
-            	}
-            	
-            	firstRun = false;
+                if(CompetitionParameters.dialogBoxOnStartAndEnd){
+                    JOptionPane.showMessageDialog(frame,
+                            "Click OK to start.");
+                }
+
+                firstRun = false;
             }
         }
 
         if(isHuman && !wi.windowClosed && CompetitionParameters.killWindowOnEnd){
-        	if(CompetitionParameters.dialogBoxOnStartAndEnd){
+            if(CompetitionParameters.dialogBoxOnStartAndEnd){
                 if (no_players == 1) {
                     JOptionPane.showMessageDialog(frame,
                             "GAMEOVER: YOU " + (avatars[humanID].getWinState() == Types.WINNER.PLAYER_WINS ? "WIN." : "LOSE."));
@@ -931,11 +931,11 @@ public abstract class Game
                     JOptionPane.showMessageDialog(frame,
                             "GAMEOVER - WINNER: " + sb);
                 }
-        	}
-        	frame.dispose();
+            }
+            frame.dispose();
         }
 
-        //Update the forward model for the game state sent to the controller.
+        //Update the forward model for the game state sent to the controllers.
         fwdModel.update(this);
 
         return handleResult();
@@ -1201,7 +1201,7 @@ public abstract class Game
      */
     void waitStep(int duration) {
 
-       try
+        try
         {
             Thread.sleep(duration);
         }
@@ -1277,19 +1277,19 @@ public abstract class Game
                 }
 
             }else {
-            	
-            	ArrayList<Integer> allTypes = iSubTypes[intId];
-            	for(Integer itype : allTypes){
-            		//Find all sprites of this subtype.
-            		Collection<VGDLSprite> sprites = this.getSprites(itype);
-            		for(VGDLSprite sp : sprites){
-            			//Check that they are not dead (could happen in this same cycle).
-            			if(!kill_list.contains(sp) && !sp.is_disabled()){
-            				executeEffect(ef, sp, null);
+
+                ArrayList<Integer> allTypes = iSubTypes[intId];
+                for(Integer itype : allTypes){
+                    //Find all sprites of this subtype.
+                    Collection<VGDLSprite> sprites = this.getSprites(itype);
+                    for(VGDLSprite sp : sprites){
+                        //Check that they are not dead (could happen in this same cycle).
+                        if(!kill_list.contains(sp) && !sp.is_disabled()){
+                            executeEffect(ef, sp, null);
                             exec = true;
-            			}
-            		}
-            	}
+                        }
+                    }
+                }
             }
 
             //If the time effect is repetitive, need to reinsert in the list of effects
@@ -1309,22 +1309,22 @@ public abstract class Game
             //For each effect that this sprite has assigned.
             for(Effect ef : eosEffects[intId])
             {
-            	//Take all the subtypes in the hierarchy of this sprite.
-            	ArrayList<Integer> allTypes = iSubTypes[intId];
-            	for(Integer itype : allTypes)
-            	{
-            		//Add all sprites of this subtype to the list of sprites.
+                //Take all the subtypes in the hierarchy of this sprite.
+                ArrayList<Integer> allTypes = iSubTypes[intId];
+                for(Integer itype : allTypes)
+                {
+                    //Add all sprites of this subtype to the list of sprites.
                     //These are sprites that could potentially collide with EOS
-            		Collection<VGDLSprite> sprites = this.getSprites(itype);
-            		for(VGDLSprite sp : sprites)
-            		{
-            			//Check if they are at the edge to trigger the effect. Also check that they
+                    Collection<VGDLSprite> sprites = this.getSprites(itype);
+                    for(VGDLSprite sp : sprites)
+                    {
+                        //Check if they are at the edge to trigger the effect. Also check that they
                         //are not dead (could happen in this same cycle).
                         if(isAtEdge(sp.rect) && !kill_list.contains(sp) && !sp.is_disabled()) {
                             executeEffect(ef, sp, null);
                         }
-            		}
-            	}
+                    }
+                }
             }
 
         }
@@ -1356,19 +1356,19 @@ public abstract class Game
                 for (int j : allTypes2){
                     secondx.addAll(getSprites(j));
                 }
-                
-            
-                
+
+
+
                 ArrayList<VGDLSprite> new_secondx = new ArrayList<VGDLSprite>();
 
                 for (VGDLSprite s1 : firstx)
                 {
-                	new_secondx = new ArrayList<VGDLSprite>();
-                	
-                	for (VGDLSprite s2 : secondx)
-                	{
+                    new_secondx = new ArrayList<VGDLSprite>();
+
+                    for (VGDLSprite s2 : secondx)
+                    {
                         if ( (s1 != s2 && s1.rect.intersects(s2.rect))) {
-                        	new_secondx.add(s2);
+                            new_secondx.add(s2);
                         }
                     }
 
@@ -1376,33 +1376,33 @@ public abstract class Game
                     {
                         for (int b = 0; b < new_secondx.size(); b++)
                         {
-                        	if (a < b)
-                        	{
+                            if (a < b)
+                            {
                                 if (Math.sqrt(
-                                    ( (s1.getPosition().x - new_secondx.get(a).getPosition().x) *
-                                    (s1.getPosition().x - new_secondx.get(a).getPosition().x) ) +
+                                        ( (s1.getPosition().x - new_secondx.get(a).getPosition().x) *
+                                                (s1.getPosition().x - new_secondx.get(a).getPosition().x) ) +
 
-                                    ((s1.getPosition().y - new_secondx.get(a).getPosition().y) *
-                                            (s1.getPosition().y - new_secondx.get(a).getPosition().y) ) ) >
-                                    Math.sqrt(
-                                            ( (s1.getPosition().x - new_secondx.get(b).getPosition().x) *
-                                            (s1.getPosition().x - new_secondx.get(b).getPosition().x) ) +
+                                                ((s1.getPosition().y - new_secondx.get(a).getPosition().y) *
+                                                        (s1.getPosition().y - new_secondx.get(a).getPosition().y) ) ) >
+                                        Math.sqrt(
+                                                ( (s1.getPosition().x - new_secondx.get(b).getPosition().x) *
+                                                        (s1.getPosition().x - new_secondx.get(b).getPosition().x) ) +
 
-                                            ((s1.getPosition().y - new_secondx.get(b).getPosition().y) *
-                                                    (s1.getPosition().y - new_secondx.get(b).getPosition().y) ) ) ) 
+                                                        ((s1.getPosition().y - new_secondx.get(b).getPosition().y) *
+                                                                (s1.getPosition().y - new_secondx.get(b).getPosition().y) ) ) )
                                 {
-                                	new_secondx.add(a,new_secondx.get(b));
-                                	new_secondx.remove(b+1);
+                                    new_secondx.add(a,new_secondx.get(b));
+                                    new_secondx.remove(b+1);
                                 }
                             }
                         }
                     }
-                    
+
                     for (int i = 0; i < new_secondx.size(); i++)
                     {
-                    	if (!kill_list.contains(s1) && s1 != new_secondx.get(i) && s1.rect.intersects(new_secondx.get(i).rect)) 
-                    	{
-                    		executeEffect(ef, s1, new_secondx.get(i));
+                        if (!kill_list.contains(s1) && s1 != new_secondx.get(i) && s1.rect.intersects(new_secondx.get(i).rect))
+                        {
+                            executeEffect(ef, s1, new_secondx.get(i));
                         }
                     }
                 }
@@ -1433,12 +1433,12 @@ public abstract class Game
                 this.counter[i] += ef.getCounter(i);
             }
         }
-        
+
         if(ef.countElse) {
-        	for (int i = 0; i < no_counters; i++) {		
-        	this.counter[i] += ef.getCounterElse(i);		
-        	}		
-        }		
+            for (int i = 0; i < no_counters; i++) {
+                this.counter[i] += ef.getCounterElse(i);
+            }
+        }
     }
 
     private void addEvent(VGDLSprite s1, VGDLSprite s2)
@@ -1449,15 +1449,15 @@ public abstract class Game
 
         else if(s1.is_from_avatar)
             historicEvents.add(new Event(gameTick, true, s1.getType(), s2.getType(),
-                                         s1.spriteID, s2.spriteID, s1.getPosition()));
+                    s1.spriteID, s2.spriteID, s1.getPosition()));
 
         else if(s2.is_avatar)
             historicEvents.add(new Event(gameTick, false, s2.getType(), s1.getType(),
-                                         s2.spriteID, s1.spriteID, s2.getPosition()));
+                    s2.spriteID, s1.spriteID, s2.getPosition()));
 
         else if(s2.is_from_avatar)
             historicEvents.add(new Event(gameTick, true, s2.getType(), s1.getType(),
-                                         s2.spriteID, s1.spriteID, s2.getPosition()));
+                    s2.spriteID, s1.spriteID, s2.getPosition()));
     }
 
     /**
@@ -1501,16 +1501,15 @@ public abstract class Game
      */
     protected void clearAll(ForwardModel fm)
     {
-        for(VGDLSprite sprite : kill_list)
-        {
+        for (VGDLSprite sprite : kill_list) {
             int spriteType = sprite.getType();
             this.spriteGroups[spriteType].removeSprite(sprite);
-            if(fm != null) {
+            if (fm != null) {
                 fm.removeSpriteObservation(sprite);
             }
 
 
-            if(sprite.is_avatar)
+            if (sprite.is_avatar)
                 //go through all avatars to see which avatar is dead
                 for (int i = 0; i < no_players; i++)
                     if (sprite == avatars[i])
@@ -1521,8 +1520,7 @@ public abstract class Game
         }
         kill_list.clear();
 
-        for(int j = 0; j < spriteGroups.length; ++j)
-        {
+        for (int j = 0; j < spriteGroups.length; ++j) {
             bucketList[j].clear();
         }
 
@@ -1603,31 +1601,31 @@ public abstract class Game
         //Only create the sprite if there is not any other sprite that blocks it.
         if(!anyother)
         {
-        	VGDLSprite newSprite;
-        	
-        	if(templateSprites[itype] == null)			// don't have a template yet, so need to create one
-        	{
-        		newSprite = VGDLFactory.GetInstance().createSprite(
+            VGDLSprite newSprite;
+
+            if(templateSprites[itype] == null)			// don't have a template yet, so need to create one
+            {
+                newSprite = VGDLFactory.GetInstance().createSprite(
                         content , position, new Dimension(block_size, block_size));
-        		
-        		//Assign its types and add it to the collection of sprites.
+
+                //Assign its types and add it to the collection of sprites.
                 newSprite.itypes = (ArrayList<Integer>) content.itypes.clone();
-                
+
                 // save a copy as template object
                 templateSprites[itype] = newSprite.copy();
-        	}
-        	else		// we already have a template, so simply copy that one
-        	{
-        		newSprite = templateSprites[itype].copy();
-        		
-        		// make sure the copy is moved to the correct position
-        		newSprite.setRect(position, new Dimension(block_size, block_size));
+            }
+            else		// we already have a template, so simply copy that one
+            {
+                newSprite = templateSprites[itype].copy();
+
+                // make sure the copy is moved to the correct position
+                newSprite.setRect(position, new Dimension(block_size, block_size));
 
                 //Set last rect
                 newSprite.lastrect = new Rectangle(newSprite.rect);
-        	}
-        	
-        	// add the sprite to the collection of sprites in the game
+            }
+
+            // add the sprite to the collection of sprites in the game
             this.addSprite(newSprite, itype);
             return newSprite;
         }
@@ -1776,13 +1774,13 @@ public abstract class Game
     {
         return charMapping;
     }
-    
+
     /**
      * Set the char mapping that is used to parse loaded levels
      * @param charMapping	new character mapping
      */
     public void setCharMapping(HashMap<Character, ArrayList<String>> charMapping){
-    	this.charMapping = charMapping;
+        this.charMapping = charMapping;
     }
 
     /**
@@ -1893,17 +1891,17 @@ public abstract class Game
         this.terminations.clear();
 
         this.definedEffects.clear();
-            for(int i=0; i<this.collisionEffects.length; i++){
-                for(int j=0; j<this.collisionEffects[i].length; j++){
-                    this.collisionEffects[i][j].clear();
-                }
+        for(int i=0; i<this.collisionEffects.length; i++){
+            for(int j=0; j<this.collisionEffects[i].length; j++){
+                this.collisionEffects[i][j].clear();
             }
+        }
 
         this.definedEOSEffects.clear();
         for(int i=0; i<this.eosEffects.length; i++){
             this.eosEffects[i].clear();
         }
-        
+
         this.timeEffects.clear();
     }
 
@@ -1913,15 +1911,15 @@ public abstract class Game
      */
     public StateObservation getObservation()
     {
-        return new StateObservation(fwdModel.copy());
+        return new StateObservation(fwdModel.copy(0),0);
     }
 
     /**
      * Retuns the observation of this state (for multiplayer).
      * @return the observation.
      */
-    public StateObservationMulti getObservationMulti() {
-        return new StateObservationMulti(fwdModel.copy());
+    public StateObservationMulti getObservationMulti(int playerID) {
+        return new StateObservationMulti(fwdModel.copy(playerID),playerID);
     }
 
     /**
@@ -1989,7 +1987,7 @@ public abstract class Game
     }
 
     public abstract void buildStringLevel(String[] levelString, int randomSeed);
-    
+
     /**
      * Builds a level, receiving a file name.
      * @param gamelvl file name containing the level.
@@ -2007,7 +2005,7 @@ public abstract class Game
 
         return pathf.getPath(pathStart, pathEnd);
     }
-    
+
     /**
      * Class for helping collision detection.
      */

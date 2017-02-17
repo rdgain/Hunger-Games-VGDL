@@ -1,7 +1,7 @@
 BasicGame no_players=2 square_size=30
 
     SpriteSet
-        land > Immovable hidden=True img=oryx/grass autotiling=True
+        land > Immovable hidden=True,True img=oryx/grass autotiling=True
         structure > Immovable
             water > color=BLUE img=newset/water4
             tree  > color=GREEN img=oryx/tree2
