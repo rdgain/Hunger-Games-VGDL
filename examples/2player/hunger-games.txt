@@ -2,20 +2,75 @@ BasicGame no_players=2 square_size=30
 
     SpriteSet
         land > Immovable hidden=True,True img=oryx/grass autotiling=True
+
         structure > Immovable
             water > color=BLUE img=newset/water4
             tree  > color=GREEN img=oryx/tree2
+            berryBush > img=oryx/bush3 shrinkfactor=0.7                           # <<< this will spawn berry resources
+            arrows > img=oryx/arrows1
+            bow > img=oryx/bow1
+            sword > img=oryx/sword3
+
         avatar > ShootAvatar speed=1
-            avatarA > stype=hitA img=newset/girl2 frameRate=8
-            avatarB > stype=hitB img=newset/man3 frameRate=8
+            avatarA > stype=hitA img=newset/girl2 frameRate=8 color=RED
+            avatarB > stype=hitB img=newset/man3 frameRate=8 color=BLUE
         hit > Flicker img=oryx/staff1 shrinkfactor=0.5
             hitA > singleton=True
             hitB > singleton=True
+
+        animals > RandomNPC cons=2
+            bear > img=oryx/bear1 cooldown=8 speed=0.3
+        potion > Immovable img=oryx/potion3 shrinkfactor=0.9
+
         wall > Immovable color=BLACK img=oryx/wall3 autotiling=true
 
-        #use energy as ammo for players
+        flying > RandomNPC cons=5
+            butterfly > img=newset/butterfly1 frameRate=8 speed=0.8 cooldown=2
+                hideBut > invisible=True hidden=True,False
+                showBut > invisible=False hidden=False,False
+
+        #-----------------------------------------------------------------------------------------------
+        #fog of war stuff
+
+        fogofwar > Immovable color=DARKGRAY
+            fogA > invisible=False hidden=False,True #only A sees fog, B doesn't
+            fogB > invisible=True hidden=True,False #only B sees fog, A doesn't
+            noFog > invisible=True hidden=True,True #no one sees fog
+            fog > invisible=False hidden=False,False #everyone sees fog
+
+        spawnRmFogA > SpawnPoint stype=rmFogA prob=0.5 invisible=True hidden=True,True follow=avatarA
+        spawnRmFogB > SpawnPoint stype=rmFogB prob=0.5 invisible=True hidden=True,True follow=avatarB
+
+        removeFog >
+            removeFogA > invisible=True hidden=True,True
+                rmFogA > Spreader stype=rmA1 singleton=True
+                rmA1 > Spreader stype=rmA2
+                rmA2 > Spreader stype=rmA3
+                rmA3 > Flicker
+
+            removeFogB > invisible=True hidden=True,True
+                rmFogB > Spreader stype=rmB1 singleton=True
+                rmB1 > Spreader stype=rmB2
+                rmB2 > Spreader stype=rmB3
+                rmB3 > Flicker
+
+        #end of fog of war stuff
+        #---------------------------------------------------------------------------------------------
+
+        #NOTES:
+        #   > use energy as ammo for players
 
     InteractionSet
+
+        #fog of war
+        fog removeFogA > transformTo stype=fogB
+        fog removeFogB > transformTo stype=fogA
+        fogA removeFogA > transformTo stype=noFog
+        fogB removeFogB > transformTo stype=noFog
+
+
+        animals animals avatar EOS wall tree > stepBack pixelPerfect=True
+        flying flying EOS > stepBack pixelPerfect=True
         avatar wall tree > stepBack pixelPerfect=True
 
         avatarA hitB > killSprite
@@ -27,9 +82,20 @@ BasicGame no_players=2 square_size=30
         SpriteCounter stype=avatarB limit=0 win=True,False
     
     LevelMapping
-        . > water land
-        A > avatarA land
-        B > avatarB land
-        t > tree land
-        w > land wall
-        _ > land
+        . > water land fog
+        A > avatarA land fog spawnRmFogA
+        B > avatarB land fog spawnRmFogB
+        h > tree land  fog
+        t > tree land fog
+        w > land wall fog
+        q > land wall  fog
+        _ > land fog
+        + > land fog
+        u > land showBut fog
+        b > land bear fog
+        0 > land berryBush fog
+        p > land potion fog
+
+        1 > arrows land fog
+        2 > bow land fog
+        3 > sword land fog

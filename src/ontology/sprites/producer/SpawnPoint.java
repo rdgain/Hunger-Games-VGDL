@@ -24,7 +24,9 @@ public class SpawnPoint extends SpriteProducer
     public int total;
     public int counter;
     public String stype;
+    public String follow;
     public int itype;
+    public int ifollow;
     public Direction spawnorientation;
 
     private int start;
@@ -54,6 +56,7 @@ public class SpawnPoint extends SpriteProducer
         is_static = true;
         spawnorientation = Types.DNONE;
         itype = -1;
+        ifollow = -1;
     }
 
     public void postProcess()
@@ -63,6 +66,8 @@ public class SpawnPoint extends SpriteProducer
         counter = 0;
         if(stype != null) //Could be, if we're using different stype variants in subclasses.
             itype = VGDLRegistry.GetInstance().getRegisteredSpriteValue(stype);
+        if(follow != null) //Could be, if we're using different stype variants in subclasses.
+            ifollow = VGDLRegistry.GetInstance().getRegisteredSpriteValue(follow);
     }
 
     public void update(Game game)
@@ -93,6 +98,11 @@ public class SpawnPoint extends SpriteProducer
             //boolean variable set to false to indicate the sprite was not transformed
             game.killSprite(this, false);
         }
+
+        if (follow != null) {
+            ArrayList<VGDLSprite> sprites = game.getSprites(ifollow);
+            this.setPosition(sprites.get(0).getPosition());
+        }
     }
 
     /**
@@ -118,7 +128,9 @@ public class SpawnPoint extends SpriteProducer
         targetSprite.total = this.total;
         targetSprite.counter = this.counter;
         targetSprite.stype = this.stype;
+        targetSprite.follow = this.follow;
         targetSprite.itype = this.itype;
+        targetSprite.ifollow = this.ifollow;
         targetSprite.spawnorientation = this.spawnorientation.copy();
         targetSprite.start = this.start;
         super.copyTo(targetSprite);
@@ -127,7 +139,8 @@ public class SpawnPoint extends SpriteProducer
     @Override
     public ArrayList<String> getDependentSprites(){
     	ArrayList<String> result = new ArrayList<String>();
-    	if(stype != null) result.add(stype);
+        if(stype != null) result.add(stype);
+        if(follow != null) result.add(follow);
     	
     	return result;
     }

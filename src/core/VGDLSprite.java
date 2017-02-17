@@ -562,6 +562,12 @@ public abstract class VGDLSprite {
         return new Vector2d(rect.x, rect.y);
     }
 
+    public void setPosition(Vector2d position) {
+        rect.x = (int) position.x;
+        rect.y = (int) position.y;
+    }
+
+
     /**
      * Gets the last position of this sprite. Returns null if same as current position.
      * @return the position as a Vector2d.
@@ -785,6 +791,9 @@ public abstract class VGDLSprite {
      */
     protected void _drawResources(Graphics2D gphx, Game game, Rectangle r)
     {
+        // if it's avatar, draw the resource bars at the top.
+
+
         int numResources = resources.size();
         double barheight = r.getHeight() / 3.5f / numResources;
         double offset = r.getMinY() + 2*r.height / 3.0f;
