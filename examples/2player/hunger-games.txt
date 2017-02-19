@@ -3,6 +3,35 @@ BasicGame no_players=2 square_size=30
     SpriteSet
         land > Immovable hidden=True,True img=oryx/grass autotiling=True
 
+
+        #-----------------------------------------------------------------------------------------------
+        #fog of war stuff
+
+        fogofwar > Immovable color=DARKGRAY
+            fogA > invisible=False hidden=False,True #only A sees fog, B doesn't
+            fogB > invisible=True hidden=True,False #only B sees fog, A doesn't
+            noFog > invisible=True hidden=True,True #no one sees fog
+            fog > invisible=False hidden=False,False #everyone sees fog
+
+        spawnRmFogA > SpawnPoint stype=rmFogA prob=0.5 invisible=True hidden=True,True follow=avatarA
+        spawnRmFogB > SpawnPoint stype=rmFogB prob=0.5 invisible=True hidden=True,True follow=avatarB
+
+        removeFog >
+            removeFogA > invisible=True hidden=True,True
+                rmFogA > Spreader stype=rmA1 singleton=True
+                rmA1 > Spreader stype=rmA2
+                rmA2 > Spreader stype=rmA3
+                rmA3 > Flicker
+
+            removeFogB > invisible=True hidden=True,True
+                rmFogB > Spreader stype=rmB1 singleton=True
+                rmB1 > Spreader stype=rmB2
+                rmB2 > Spreader stype=rmB3
+                rmB3 > Flicker
+
+        #end of fog of war stuff
+        #---------------------------------------------------------------------------------------------
+
         structure > Immovable
             water > color=BLUE img=newset/water4
             tree  > color=GREEN img=oryx/tree2
@@ -38,34 +67,7 @@ BasicGame no_players=2 square_size=30
             butterfly > img=newset/butterfly1 frameRate=8 speed=0.8 cooldown=2
                 hideBut > invisible=True hidden=True,False
                 showBut > invisible=False hidden=False,False
-                
-        #-----------------------------------------------------------------------------------------------
-        #fog of war stuff
 
-        fogofwar > Immovable color=DARKGRAY
-            fogA > invisible=False hidden=False,True #only A sees fog, B doesn't
-            fogB > invisible=True hidden=True,False #only B sees fog, A doesn't
-            noFog > invisible=True hidden=True,True #no one sees fog
-            fog > invisible=False hidden=False,False #everyone sees fog
-
-        spawnRmFogA > SpawnPoint stype=rmFogA prob=0.5 invisible=True hidden=True,True follow=avatarA
-        spawnRmFogB > SpawnPoint stype=rmFogB prob=0.5 invisible=True hidden=True,True follow=avatarB
-
-        removeFog >
-            removeFogA > invisible=True hidden=True,True
-                rmFogA > Spreader stype=rmA1 singleton=True
-                rmA1 > Spreader stype=rmA2
-                rmA2 > Spreader stype=rmA3
-                rmA3 > Flicker
-
-            removeFogB > invisible=True hidden=True,True
-                rmFogB > Spreader stype=rmB1 singleton=True
-                rmB1 > Spreader stype=rmB2
-                rmB2 > Spreader stype=rmB3
-                rmB3 > Flicker
-
-        #end of fog of war stuff
-        #---------------------------------------------------------------------------------------------
 
         #NOTES:
         #   > use energy as ammo for players
@@ -107,7 +109,7 @@ BasicGame no_players=2 square_size=30
         A > avVisA land fog spawnRmFogA
         B > avVisB land fog spawnRmFogB
         h > tree land  fog
-        t > tree land fog
+        t > tree land
         w > land wall fog
         q > land wall  fog
         _ > land fog
