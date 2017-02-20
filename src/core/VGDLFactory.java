@@ -347,7 +347,8 @@ public class VGDLFactory
                                 if((value.equalsIgnoreCase("true") ||
                                    value.equalsIgnoreCase("false") )
                                         && !parameter.equalsIgnoreCase("win")
-                                        && !parameter.equalsIgnoreCase("invisible")) {
+                                        && !parameter.equalsIgnoreCase("invisible")
+                                        && !parameter.equalsIgnoreCase("hidden")) {
                                     objVal = Boolean.parseBoolean(value);
                                 }
                                 else {

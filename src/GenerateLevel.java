@@ -7,7 +7,7 @@ import java.io.FileReader;
 public class GenerateLevel {
 
     public static void main(String[] args) {
-        float[][] array = new float[33][64];//generateSimplexNoise(33, 64);
+        float[][] array = generateSimplexNoise(33, 64);
         Character[][] level = new Character[33][64];
 
         try {
@@ -26,8 +26,8 @@ public class GenerateLevel {
             e.printStackTrace();
         }
 
-        float thresh1 = 0.36f;
-        float thresh2 = 0.05f;
+        float thresh1 = 0.89f;
+        float thresh2 = 0.98f;
 
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[0].length; j++) {
@@ -44,12 +44,13 @@ public class GenerateLevel {
 ////                            level[j][i] = '_';
 ////                        } catch (Exception e) {}
 //
-//                        if (array[i][j] < thresh2) {
-//                            level[i][j] = 'w';
-////                            try {
-////                                level[j][i] = 'w';
-////                            } catch (Exception e) {}
-//                        }
+                        if (i > 0 && j > 0 && i < 32 && j < 63 && array[i][j] > thresh1 && array[i][j] < thresh2) {
+                            if (level[i][j] == '_' || level[i][j] == 'h')
+                                level[i][j] = '.';
+//                            try {
+//                                level[j][i] = 'w';
+//                            } catch (Exception e) {}
+                        }
 //                    }
 //                }
 //                level[2][6] = 'A';

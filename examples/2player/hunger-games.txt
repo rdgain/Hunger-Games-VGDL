@@ -3,7 +3,6 @@ BasicGame no_players=2 square_size=30
     SpriteSet
         land > Immovable hidden=True,True img=oryx/grass autotiling=True
 
-
         #-----------------------------------------------------------------------------------------------
         #fog of war stuff
 
@@ -32,38 +31,78 @@ BasicGame no_players=2 square_size=30
         #end of fog of war stuff
         #---------------------------------------------------------------------------------------------
 
-        structure > Immovable
+        berryBush > SpawnPoint total=100 prob=0.001 img=oryx/bush5 shrinkfactor=0.7
+            berryBushVisA > hidden=False,True invisible=False,True stype=berryVisA
+            berryBushVisB > hidden=True,False invisible=True,False stype=berryVisB
+            berryBushVis > hidden=False invisible=False stype=berryVis
+            berryBushHid > hidden=True invisible=True stype=berryHid
+        waterSource > SpawnPoint prob=0.01 total=20 img=newset/water4 invisible=True hidden=True stype=waterHid
+
+        resourcepack > Resource #these die after a number of things spawned
             water > color=BLUE img=newset/water4
-            tree  > color=GREEN img=oryx/tree2
-            berryBush > img=oryx/bush3 shrinkfactor=0.7                           # <<< this will spawn berry resources
+                waterVisA > hidden=False,True invisible=False,True
+                waterVisB > hidden=True,False invisible=True,False
+                waterVis > hidden=False invisible=False
+                waterHid > hidden=True invisible=True
+            berry > img=oryx/bush3 shrinkfactor=0.7
+                berryVisA > hidden=False,True invisible=False,True
+                berryVisB > hidden=True,False invisible=True,False
+                berryVis > hidden=False invisible=False
+                berryHid > hidden=True invisible=True
+
+        spawnPotion > SpawnPoint
+            spPot1 > prob=0.001 invisible=True hidden=True stype=potHid
+            spPot2 > prob=0.01 invisible=True hidden=True stype=potHid
+            spPot3 > prob=0.0005 invisible=True hidden=True stype=potHid
+        potion > Resource img=oryx/potion3 shrinkfactor=0.9
+            potVisA > hidden=False,True invisible=False,True
+            potVisB > hidden=True,False invisible=True,False
+            potVis > hidden=False invisible=False
+            potHid > hidden=True invisible=True
+
+
+        #still to do
+        collectible > Resource
             arrows > img=oryx/arrows1
             bow > img=oryx/bow1
-            sword > img=oryx/sword3
 
         #-----------------------------------------------------------------------------------------------
         #avatar stuff
 
-        avatar > ShootAvatar speed=1
-            avatarA > stype=hitA img=newset/girl2 frameRate=8 color=RED #always visible to himself
-                avVisA > hidden=False,False invisible=False     #visible to B too
-                avHidA > hidden=False,True invisible=False,True #hidden from B
-            avatarB > stype=hitB img=newset/man3 frameRate=8 color=BLUE #always visible to himself
-                avVisB > hidden=False,False invisible=False     #visible to A too
-                avHidB > hidden=True,False invisible=True,False #hidden from A
+        avatar > ShootAvatar speed=1 healthPoints=200 limitHealthPoints=200
+            avatarA > img=newset/girl2 frameRate=8 color=RED #always visible to himself
+                avVisA > hidden=False,False invisible=False stype=hitAvis     #visible to B too
+                avHidA > hidden=False,True invisible=False,True stype=hitAhid #hidden from B
+            avatarB > img=newset/man3 frameRate=8 color=BLUE #always visible to himself
+                avVisB > hidden=False,False invisible=False stype=hitBvis     #visible to A too
+                avHidB > hidden=True,False invisible=True,False stype=hitBhid #hidden from A
         hit > Flicker img=oryx/staff1 shrinkfactor=0.5
             hitA > singleton=True
+                hitAvis > hidden=False invisible=False
+                hitAhid > hidden=False,True invisible=False,True
             hitB > singleton=True
+                hitBvis > hidden=False invisible=False
+                hitBhid > hidden=True,False invisible=True,False
 
         #end of avatar stuff
         #---------------------------------------------------------------------------------------------
 
-        animals > RandomNPC cons=2
+        animals > RandomNPC cons=2 #still to do
             bear > img=oryx/bear1 cooldown=8 speed=0.3
-        potion > Immovable img=oryx/potion3 shrinkfactor=0.9
 
+        tree > Immovable color=GREEN img=oryx/tree2
+            treeVisA > hidden=False,True invisible=False,True
+            treeVisB > hidden=True,False invisible=True,False
+            treeVis > hidden=False invisible=False
+            treeHid > hidden=True invisible=True
         wall > Immovable color=BLACK img=oryx/wall3 autotiling=true
+            wallVisA > hidden=False,True invisible=False,True
+            wallVisB > hidden=True,False invisible=True,False
+            wallVis > hidden=False invisible=False
+            wallHid > hidden=True invisible=True
 
-        flying > RandomNPC cons=5
+
+        flying > RandomNPC cons=5 #still to do
             butterfly > img=newset/butterfly1 frameRate=8 speed=0.8 cooldown=2
                 hideBut > invisible=True hidden=True,False
                 showBut > invisible=False hidden=False,False
@@ -71,33 +110,81 @@ BasicGame no_players=2 square_size=30
 
         #NOTES:
         #   > use energy as ammo for players
+        #   > give scores!
 
     InteractionSet
 
-        #------------------------
-        #fog of war
+        avatarA TIME > subtractHealthPoints timer=5 repeating=True
+        avatarB TIME > subtractHealthPoints timer=5 repeating=True
+
+        #------fog-of-war--------
         fog removeFogA > transformTo stype=fogB
         fog removeFogB > transformTo stype=fogA
         fogA removeFogA > transformTo stype=noFog
         fogB removeFogB > transformTo stype=noFog
 
-        #------------------------
-        #hiding world objects based on fog of war
+        avVisA fog fogB > transformTo stype=avHidA #keepHealthPoints=True
+        avVisB fog fogA > transformTo stype=avHidB #keepHealthPoints=True
+        avHidA fogA noFog > transformTo stype=avVisA #keepHealthPoints=True
+        avHidB fogB noFog > transformTo stype=avVisB #keepHealthPoints=True
 
-        avVisA fog fogB > transformTo stype=avHidA
-        avVisB fog fogA > transformTo stype=avHidB
-        avHidA fogA noFog > transformTo stype=avVisA
-        avHidB fogB noFog > transformTo stype=avVisB
+        treeVisA noFog > transformTo stype=treeVis
+        treeVisB noFog > transformTo stype=treeVis
+        treeHid fogA > transformTo stype=treeVisB
+        treeHid fogB > transformTo stype=treeVisA
 
-        #------------------------
-        #object interaction
+        wallVisA noFog > transformTo stype=wallVis
+        wallVisB noFog > transformTo stype=wallVis
+        wallHid fogA > transformTo stype=wallVisB
+        wallHid fogB > transformTo stype=wallVisA
 
-        animals animals avatar EOS wall tree > stepBack pixelPerfect=True
+        berryBush fogB > transformTo stype=berryBushVisA
+        berryBush fogA > transformTo stype=berryBushVisB
+        berryBush noFog > transformTo stype=berryBushVis
+        berryHid fogB > transformTo stype=berryVisA
+        berryHid fogA > transformTo stype=berryVisB
+        berryHid noFog > transformTo stype=berryVis
+
+        spPot1 fogB > updateSpawnType stype=potVisA spawnPoint=spPot1
+        spPot1 fogA > updateSpawnType stype=potVisB spawnPoint=spPot1
+        spPot1 noFog > updateSpawnType stype=potVis spawnPoint=spPot1
+        spPot2 fogB > updateSpawnType stype=potVisA spawnPoint=spPot2
+        spPot2 fogA > updateSpawnType stype=potVisB spawnPoint=spPot2
+        spPot2 noFog > updateSpawnType stype=potVis spawnPoint=spPot2
+        spPot3 fogB > updateSpawnType stype=potVisA spawnPoint=spPot3
+        spPot3 fogA > updateSpawnType stype=potVisB spawnPoint=spPot3
+        spPot3 noFog > updateSpawnType stype=potVis spawnPoint=spPot3
+        potHid fogB > transformTo stype=potVisA
+        potHid fogA > transformTo stype=potVisB
+        potHid noFog > transformTo stype=potVis
+
+        waterVisA noFog > transformTo stype=waterVis
+        waterVisB noFog > transformTo stype=waterVis
+        waterVis fogA > transformTo stype=waterVisB
+        waterHid fogB > transformTo stype=waterVisA
+
+        #------collision---------
+        animals animals avatar EOS wall tree water > stepBack pixelPerfect=True
         flying flying EOS > stepBack pixelPerfect=True
-        avatar wall tree > stepBack pixelPerfect=True
+        avatar wall water tree > stepBack pixelPerfect=True
 
+
+        #------collecting--------
+        avatar potion > addHealthPointsToMax value=100
+        potion avatar > killSprite
+
+        avatar berry > addHealthPointsToMax value=5
+        berry avatar > killSprite
+
+        hitA water > addHealthPointsToMax value=10
+        water hitA > killSprite
+
+        #-------killing----------
         avatarA hitB > killSprite
         avatarB hitA > killSprite
+
+        #-------other------------
+        potion potion > killSprite #avoid stacking potions
     
     TerminationSet
         SpriteCounter stype=avatar limit=0 win=False,False
@@ -105,20 +192,22 @@ BasicGame no_players=2 square_size=30
         SpriteCounter stype=avatarB limit=0 win=True,False
     
     LevelMapping
-        . > water land fog
+        _ > land fog
         A > avVisA land fog spawnRmFogA
         B > avVisB land fog spawnRmFogB
-        h > tree land  fog
-        t > tree land
-        w > land wall fog
+        h > treeHid land  fog
+        w > land wallHid fog
+        1 > land spPot1 fog
+        2 > land spPot2 fog
+        3 > land spPot3 fog
+        b > land berryBushHid fog
+        . > waterSource land fog
+
         q > land wall  fog
-        _ > land fog
         + > land fog
         u > land showBut fog
-        b > land bear fog
-        0 > land berryBush fog
-        p > land potion fog
+        a > land bear fog
 
-        1 > arrows land fog
-        2 > bow land fog
-        3 > sword land fog
+        f > arrows land fog
+        g > bow land fog
+        r > sword land fog

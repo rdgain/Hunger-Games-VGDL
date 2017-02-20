@@ -3,6 +3,7 @@ package ontology.sprites.producer;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import core.VGDLRegistry;
 import core.VGDLSprite;
 import core.content.SpriteContent;
@@ -23,6 +24,8 @@ public class SpawnPoint extends SpriteProducer
     public double prob;
     public int total;
     public int counter;
+    public int respawn;
+    public int counterRespawn;
     public String stype;
     public String follow;
     public int itype;
@@ -57,6 +60,7 @@ public class SpawnPoint extends SpriteProducer
         spawnorientation = Types.DNONE;
         itype = -1;
         ifollow = -1;
+        respawn = -1;
     }
 
     public void postProcess()
@@ -64,6 +68,7 @@ public class SpawnPoint extends SpriteProducer
         super.postProcess();
         is_stochastic = (prob > 0 && prob < 1);
         counter = 0;
+        counterRespawn = 0;
         if(stype != null) //Could be, if we're using different stype variants in subclasses.
             itype = VGDLRegistry.GetInstance().getRegisteredSpriteValue(stype);
         if(follow != null) //Could be, if we're using different stype variants in subclasses.
@@ -78,16 +83,20 @@ public class SpawnPoint extends SpriteProducer
         float rollDie = game.getRandomGenerator().nextFloat();
         if(((start+game.getGameTick()) % cooldown == 0) && rollDie < prob)
         {
-            VGDLSprite newSprite = game.addSprite(itype, this.getPosition());
-            if(newSprite != null) {
-                counter++;
+            if (itype != -1) {
+                VGDLSprite newSprite = game.addSprite(itype, this.getPosition());
+                if (newSprite != null) {
+                    counter++;
 
-                //We set the orientation given by default it this was passed.
-                if(!(spawnorientation.equals(Types.DNONE)))
-                    newSprite.orientation = spawnorientation.copy();
-                //If no orientation given, we set the one from the spawner.
-                else if (newSprite.orientation.equals(Types.DNONE))
-                    newSprite.orientation = this.orientation.copy();
+                    //We set the orientation given by default it this was passed.
+                    if (!(spawnorientation.equals(Types.DNONE)))
+                        newSprite.orientation = spawnorientation.copy();
+                        //If no orientation given, we set the one from the spawner.
+                    else if (newSprite.orientation.equals(Types.DNONE))
+                        newSprite.orientation = this.orientation.copy();
+                }
+            } else {
+                System.out.println("Error: spawn type not found");
             }
         }
 
@@ -96,7 +105,15 @@ public class SpawnPoint extends SpriteProducer
         if(total > 0 && counter >= total)
         {
             //boolean variable set to false to indicate the sprite was not transformed
-            game.killSprite(this, false);
+            if (respawn > 0) {
+                if (counterRespawn < respawn) counterRespawn++;
+                else {
+                    counter = 0;
+                    counterRespawn = 0;
+                }
+            } else {
+                game.killSprite(this, false);
+            }
         }
 
         if (follow != null) {
