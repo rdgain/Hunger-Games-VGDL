@@ -345,10 +345,14 @@ public class VGDLFactory
                         } catch (NumberFormatException e2) {
                             try {
                                 if((value.equalsIgnoreCase("true") ||
-                                   value.equalsIgnoreCase("false") ) && !parameter.equalsIgnoreCase("win"))
+                                   value.equalsIgnoreCase("false") )
+                                        && !parameter.equalsIgnoreCase("win")
+                                        && !parameter.equalsIgnoreCase("invisible")) {
                                     objVal = Boolean.parseBoolean(value);
-                                else
+                                }
+                                else {
                                     objVal = value;
+                                }
                             } catch (NumberFormatException e3) {
                                 objVal = value;
                             }

@@ -168,7 +168,7 @@ public abstract class VGDLSprite {
      * Indicates if the sprite is invisible. If it is, the effect is that
      * it is not drawn.
      */
-    public boolean invisible;
+    public String invisible;
 
     /**
      * If true, this sprite is never present in the observations passed to the controller.
@@ -342,7 +342,6 @@ public abstract class VGDLSprite {
         draw_arrow = false;
         orientation = Types.DNONE;
         lastmove = 0;
-        invisible = false;
         rotateInPlace = false;
         isFirstTick = true;
         disabled = false;
@@ -350,6 +349,7 @@ public abstract class VGDLSprite {
         resources = new TreeMap<Integer, Integer>();
         itypes = new ArrayList<Integer>();
         rotation = 0.0;
+        invisible = "False";
         
         this.size = size;
 
@@ -620,8 +620,14 @@ public abstract class VGDLSprite {
      * @param game reference to the game that is being played now.
      */
     public void draw(Graphics2D gphx, Game game) {
+        String[] invis = invisible.split(",");
 
-        if(!invisible && !disabled)
+        int pl = game.humanPlayer;
+        if (pl > invis.length - 1) {
+            pl = invis.length - 1;
+        }
+
+        if(!Boolean.parseBoolean(invis[pl]) && !disabled)
         {
             Rectangle r = new Rectangle(rect);
 

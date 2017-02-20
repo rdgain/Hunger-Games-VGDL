@@ -248,6 +248,7 @@ public abstract class Game
      */
     protected PathFinder pathf;
 
+    public int humanPlayer = 0;
 
     /**
      * Avatars last actions.

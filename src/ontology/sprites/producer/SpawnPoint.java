@@ -107,8 +107,6 @@ public class SpawnPoint extends SpriteProducer
             }
 
             if (!sprites.isEmpty())  this.setPosition(sprites.get(0).getPosition());
-
-            //get children of this sprite type
         }
     }
 
