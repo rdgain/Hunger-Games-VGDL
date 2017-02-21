@@ -37,9 +37,6 @@ BasicGame no_players=2 square_size=30
                 berryVis > hidden=False invisible=False
                 berryHid > hidden=True invisible=True
 
-        flyfood > Resource color=PINK shrinkfactor=0.5 img=oryx/mushroom2
-        food > Resource color=BLUE shrinkfactor=0.5 img=oryx/mushroom1
-
         collectible > Resource
             ar > img=oryx/arrows2 shrinkfactor=0.8
                 arrowsVisA > hidden=False,True invisible=False,True #A can see them
@@ -47,7 +44,8 @@ BasicGame no_players=2 square_size=30
                 arrowsVis > hidden=False invisible=False
                 arrowsHid > hidden=True invisible=True
 
-        arrowSpawn > SpawnPoint invisible=True hidden=True prob=0.001 stype=arrowsHid
+        flyfood > Resource color=PINK shrinkfactor=0.5 img=oryx/mushroom2
+        food > Resource color=BLUE shrinkfactor=0.5 img=oryx/mushroom1
 
         #-----------------------------avatar-stuff-------------------------------------------
 
@@ -81,6 +79,7 @@ BasicGame no_players=2 square_size=30
 
         animalSpawn > SpawnPoint stype=bearHid prob=0.0008 invisible=True hidden=True
         flyingSpawn > SpawnPoint stype=butHid prob=0.002 invisible=True hidden=True
+        arrowSpawn > SpawnPoint invisible=True hidden=True prob=0.001 stype=arrowsHid
 
         animal > RandomNPC cons=2
             bear > img=oryx/bear1 cooldown=8 speed=0.3 shrinkfactor=0.7
@@ -94,6 +93,7 @@ BasicGame no_players=2 square_size=30
             treeVisB > hidden=True,False invisible=True,False
             treeVis > hidden=False invisible=False
             treeHid > hidden=True invisible=True
+
         wall > Immovable color=BLACK img=oryx/wall3 autotiling=true
             wallVisA > hidden=False,True invisible=False,True
             wallVisB > hidden=True,False invisible=True,False
@@ -113,13 +113,13 @@ BasicGame no_players=2 square_size=30
         avatarB TIME > subtractHealthPoints timer=5 repeating=True
 
         #------fog-of-war--------
-        fog removeFogA > transformTo stype=fogB
-        fog removeFogB > transformTo stype=fogA
-        fogA removeFogA > transformTo stype=noFog
-        fogB removeFogB > transformTo stype=noFog
+        fog removeFogA > transformTo stype=fogB scoreChange=1,0
+        fog removeFogB > transformTo stype=fogA scoreChange=0,1
+        fogA removeFogA > transformTo stype=noFog scoreChange=1,0
+        fogB removeFogB > transformTo stype=noFog scoreChange=0,1
 
-        avatarA fog fogA > spawn stype=rmFogA
-        avatarB fog fogB > spawn stype=rmFogB
+        avatarA fog fogA > spawn stype=rmFogA scoreChange=1,0
+        avatarB fog fogB > spawn stype=rmFogB scoreChange=0,1
 
         avVisA fog fogB > transformTo stype=avHidA
         avVisB fog fogA > transformTo stype=avHidB
@@ -174,13 +174,16 @@ BasicGame no_players=2 square_size=30
         avatarB wall tree > stepBack stype=removeFogB
 
         #------collecting--------
-        avatar berry > addHealthPointsToMax value=5
+        avatarA berry > addHealthPointsToMax value=5 scoreChange=5,0
+        avatarB berry > addHealthPointsToMax value=5 scoreChange=0,5
         berry avatar > killSprite
 
-        avatar flyfood > addHealthPointsToMax value=20
+        avatarA flyfood > addHealthPointsToMax value=20 scoreChange=10,0
+        avatarB flyfood > addHealthPointsToMax value=20 scoreChange=0,10
         flyfood avatar > killSprite
 
-        avatar food > addHealthPointsToMax value=50
+        avatarA food > addHealthPointsToMax value=50 scoreChange=25,0
+        avatarB food > addHealthPointsToMax value=50 scoreChange=0,25
         food avatar > killSprite
 
         avatarA ar > changeResource resource=arrows value=5
@@ -188,16 +191,18 @@ BasicGame no_players=2 square_size=30
         ar avatar > killSprite
 
         #-------killing----------
-        avatarA hitB shootB > subtractHealthPoints value=20
-        avatarB hitA shootA > subtractHealthPoints value=20
+        avatarA hitB > subtractHealthPoints value=15 scoreChange=15,0
+        avatarA shootB > subtractHealthPoints value=25 scoreChange=25,0
+        avatarB hitA > subtractHealthPoints value=15 scoreChange=0,15
+        avatarB shootA > subtractHealthPoints value=25 scoreChange=0,25
 
         flying hit shoot > spawn stype=flyfood
-        flying hitA shootA > killBoth
-        flying hitB shootB > killBoth
+        flying hitA shootA > killBoth scoreChange=10,0
+        flying hitB shootB > killBoth scoreChange=0,10
 
         animal hit shoot > spawn stype=food
-        animal hitA shootA > killBoth
-        animal hitB shootB > killBoth
+        animal hitA shootA > killBoth scoreChange=25,0
+        animal hitB shootB > killBoth scoreChange=0,25
 
         #-------other------------
         removeFogA removeFogA > killSprite #avoid a crazy number of sprites
