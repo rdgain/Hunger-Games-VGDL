@@ -39,7 +39,8 @@ BasicGame no_players=2 square_size=30
                 berryVis > hidden=False invisible=False
                 berryHid > hidden=True invisible=True
 
-        flyfood > Resource color=PINK shrinkfactor=0.7
+        flyfood > Resource color=PINK shrinkfactor=0.5 img=oryx/mushroom2
+        food > Resource color=BLUE shrinkfactor=0.5 img=oryx/mushroom1
 
         #-----------------------------------------------------------------------------------------------
         #avatar stuff
@@ -62,8 +63,15 @@ BasicGame no_players=2 square_size=30
         #end of avatar stuff
         #---------------------------------------------------------------------------------------------
 
-        animals > RandomNPC cons=2 #still to do
-            bear > img=oryx/bear1 cooldown=8 speed=0.3
+        animalSpawn > SpawnPoint stype=bearHid prob=0.0008 invisible=True hidden=True
+        flyingSpawn > SpawnPoint stype=butHid prob=0.002 invisible=True hidden=True
+
+        animal > RandomNPC cons=2
+            bear > img=oryx/bear1 cooldown=8 speed=0.3 shrinkfactor=0.4
+                bearVisA > hidden=False,True invisible=False,True
+                bearVisB > hidden=True,False invisible=True,False
+                bearVis > hidden=False invisible=False
+                bearHid > hidden=True invisible=True
 
         tree > Immovable color=GREEN img=oryx/tree2
             treeVisA > hidden=False,True invisible=False,True
@@ -76,7 +84,7 @@ BasicGame no_players=2 square_size=30
             wallVis > hidden=False invisible=False
             wallHid > hidden=True invisible=True
 
-        flying > RandomNPC cons=5 #still to do
+        flying > RandomNPC cons=5
             butterfly > img=newset/butterfly1 frameRate=8 speed=0.8 cooldown=2
                 butVisA > hidden=False,True invisible=False,True
                 butVisB > hidden=True,False invisible=True,False
@@ -129,19 +137,29 @@ BasicGame no_players=2 square_size=30
         butVis fogB > transformTo stype=butVisB
         butVisA fog > transformTo stype=butHid
 
+        bearVisA noFog > transformTo stype=bearVis
+        bearVisB noFog > transformTo stype=bearVis
+        bearHid fogA > transformTo stype=bearVisB
+        bearHid fogB > transformTo stype=bearVisA
+        bearVis fogA > transformTo stype=bearVisA
+        bearVis fogB > transformTo stype=bearVisB
+        bearVisA fog > transformTo stype=bearHid
+
         #------collision---------
-        animals animals avatar EOS wall tree > stepBack
+        animal animal avatar EOS wall > stepBack
         flying flying EOS > stepBack
         avatarA wall tree > stepBack stype=removeFogA
         avatarB wall tree > stepBack stype=removeFogB
-
 
         #------collecting--------
         avatar berry > addHealthPointsToMax value=5
         berry avatar > killSprite
 
-        avatar flyfood > addHealthPointsToMax value=50
+        avatar flyfood > addHealthPointsToMax value=20
         flyfood avatar > killSprite
+
+        avatar food > addHealthPointsToMax value=50
+        food avatar > killSprite
 
         #-------killing----------
         avatarA hitB > killSprite
@@ -150,6 +168,10 @@ BasicGame no_players=2 square_size=30
         flying hit > spawn stype=flyfood
         flying hitA > killBoth
         flying hitB > killBoth
+
+        animal hit > spawn stype=food
+        animal hitA > killBoth
+        animal hitB > killBoth
 
         #-------other------------
         removeFogA removeFogA > killSprite #avoid a crazy number of sprites
@@ -166,7 +188,8 @@ BasicGame no_players=2 square_size=30
         h > treeHid land fog
         w > land wallHid fog
         b > land berryBushHid fog
-        u > land butHid fog
+        u > land flyingSpawn fog
+        q > land tree animalSpawn fog
 
         f > arrows land fog
         g > bow land fog
