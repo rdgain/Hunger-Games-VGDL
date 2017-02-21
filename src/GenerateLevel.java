@@ -7,8 +7,8 @@ import java.io.FileReader;
 public class GenerateLevel {
 
     public static void main(String[] args) {
-        float[][] array = generateSimplexNoise(33, 64);
-        Character[][] level = new Character[33][64];
+        float[][] array = generateSimplexNoise(20, 20);
+        Character[][] level = new Character[20][20];
 
         try {
             BufferedReader br = new BufferedReader(new FileReader("examples/2player/hunger-games_lvl0.txt"));
@@ -26,35 +26,36 @@ public class GenerateLevel {
             e.printStackTrace();
         }
 
-        float thresh1 = 0.89f;
-        float thresh2 = 0.98f;
+        float thresh1 = 0.48f;
+        float thresh2 = 0.05f;
+        float thresh3 = 0.95f;
 
+//        level[1][1] = 'A';
+//        level[18][18] = 'B';
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[0].length; j++) {
 
 //                if (level[i][j] == null) {
 //                    if (array[i][j] > thresh1) {
 //                        level[i][j] = 'h';
-////                        try {
-////                            level[j][i] = 'h';
-////                        } catch (Exception e) {}
+//                        try {
+//                            level[j][i] = 'h';
+//                        } catch (Exception e) {}
 //                    } else {
 //                        level[i][j] = '_';
-////                        try {
-////                            level[j][i] = '_';
-////                        } catch (Exception e) {}
+//                        try {
+//                            level[j][i] = '_';
+//                        } catch (Exception e) {}
 //
-                        if (i > 0 && j > 0 && i < 32 && j < 63 && array[i][j] > thresh1 && array[i][j] < thresh2) {
+                        if (i > 0 && j > 0 && i < 19 && j < 19 && (array[i][j] < thresh2 || array[i][j] > thresh3)) {
                             if (level[i][j] == '_' || level[i][j] == 'h')
-                                level[i][j] = '.';
+                                level[i][j] = 'w';
 //                            try {
 //                                level[j][i] = 'w';
 //                            } catch (Exception e) {}
                         }
 //                    }
 //                }
-//                level[2][6] = 'A';
-//                level[30][57] = 'B';
                 System.out.print(level[i][j]);
             }
             System.out.println();

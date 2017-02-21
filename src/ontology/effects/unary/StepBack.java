@@ -1,5 +1,6 @@
 package ontology.effects.unary;
 
+import core.VGDLRegistry;
 import core.VGDLSprite;
 import core.content.InteractionContent;
 import core.game.Game;
@@ -9,6 +10,7 @@ import tools.Direction;
 import tools.Vector2d;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,6 +22,8 @@ import java.awt.*;
 public class StepBack extends Effect
 {
     public boolean pixelPerfect;
+    public String stype;
+    public int itype;
 
     public StepBack(InteractionContent cnt)
     {
@@ -30,6 +34,18 @@ public class StepBack extends Effect
     @Override
     public void execute(VGDLSprite sprite1, VGDLSprite sprite2, Game game)
     {
+        if(stype != null) { //Could be, if we're using different stype variants in subclasses.
+            itype = VGDLRegistry.GetInstance().getRegisteredSpriteValue(stype);
+            for (int i : game.getSubTypes(itype)) {
+                ArrayList<VGDLSprite> sp = game.getSprites(i);
+                if (!sp.isEmpty()) {
+                    for (VGDLSprite s : sp) {
+                        s.setRect(s.lastrect);
+                    }
+                }
+            }
+        }
+
         if(pixelPerfect && sprite2!=null) //Sprite2 could be Null in an EOS case.
             sprite1.setRect(calculatePixelPerfect(sprite1, sprite2));
         else

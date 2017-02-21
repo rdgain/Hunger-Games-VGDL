@@ -58,11 +58,13 @@ public class Spreader extends Flicker
         super.update(game);
         if(age == 2)
         {
+            int newType = (itype == -1) ? this.getType() : itype;
+            game.addSprite(newType, new Vector2d(this.lastrect.x + getPosition().x*this.lastrect.width,
+                    this.lastrect.y + getPosition().y*this.lastrect.height));
             for(Vector2d u : Types.BASEDIRS)
             {
                 if(game.getRandomGenerator().nextDouble() < spreadprob)
                 {
-                    int newType = (itype == -1) ? this.getType() : itype;
                     game.addSprite(newType, new Vector2d(this.lastrect.x + u.x*this.lastrect.width,
                                                     this.lastrect.y + u.y*this.lastrect.height));
                 }

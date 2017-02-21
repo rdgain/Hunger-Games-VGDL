@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import core.competition.CompetitionParameters;
 import core.content.SpriteContent;
 import core.game.Game;
@@ -33,6 +34,8 @@ import tools.Vector2d;
  * This is a Java port from Tom Schaul's VGDL - https://github.com/schaul/py-vgdl
  */
 public abstract class VGDLSprite {
+
+    public int sizeIncrease = 1;
 
     /**
      * Name of this sprite.
@@ -349,9 +352,10 @@ public abstract class VGDLSprite {
         resources = new TreeMap<Integer, Integer>();
         itypes = new ArrayList<Integer>();
         rotation = 0.0;
-        invisible = "False";
+        invisible = "false";
         
         this.size = size;
+
 
         determinePhysics(physicstype_id, size);
         setRandomColor();
@@ -622,12 +626,15 @@ public abstract class VGDLSprite {
     public void draw(Graphics2D gphx, Game game) {
         String[] invis = invisible.split(",");
 
-        int pl = game.humanPlayer;
-        if (pl > invis.length - 1) {
-            pl = invis.length - 1;
-        }
+        boolean displayP1 = game.humanPlayer[0] && Boolean.parseBoolean(invis[0]);
+        boolean displayP2;
 
-        if(!Boolean.parseBoolean(invis[pl]) && !disabled)
+        if (game.humanPlayer[1] && invis.length == 1) {
+            displayP2 = game.humanPlayer[1] && Boolean.parseBoolean(invis[0]);
+        } else
+            displayP2 = game.humanPlayer[1] && Boolean.parseBoolean(invis[1]);
+
+        if(!(displayP1 || displayP2) && !disabled)
         {
             Rectangle r = new Rectangle(rect);
 

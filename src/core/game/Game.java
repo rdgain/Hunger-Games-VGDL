@@ -26,6 +26,7 @@ import ontology.avatar.MovingAvatar;
 import ontology.effects.Effect;
 import ontology.effects.TimeEffect;
 import ontology.sprites.Resource;
+import org.omg.PortableInterceptor.ForwardRequest;
 import tools.*;
 import tools.pathfinder.Node;
 import tools.pathfinder.PathFinder;
@@ -248,7 +249,7 @@ public abstract class Game
      */
     protected PathFinder pathf;
 
-    public int humanPlayer = 0;
+    public boolean[] humanPlayer;
 
     /**
      * Avatars last actions.
@@ -307,6 +308,7 @@ public abstract class Game
             avatarLastAction[i] = Types.ACTIONS.ACTION_NIL;
 
         counter = new int[no_counters];
+        humanPlayer = new boolean[no_players];
     }
 
     /**
@@ -1334,6 +1336,10 @@ public abstract class Game
 
         // Now, we handle events between pairs of sprites, for each pair of sprites that
         // has a paired effect defined:
+
+
+
+
         for(Pair<Integer,Integer> p : definedEffects)
         {
             // We iterate over the (potential) multiple effects that these

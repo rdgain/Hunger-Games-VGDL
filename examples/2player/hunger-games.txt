@@ -12,21 +12,16 @@ BasicGame no_players=2 square_size=30
             noFog > invisible=True hidden=True,True #no one sees fog
             fog > invisible=False hidden=False,False #everyone sees fog
 
-        spawnRmFogA > SpawnPoint stype=rmFogA prob=0.5 invisible=True hidden=True,True follow=avatarA
-        spawnRmFogB > SpawnPoint stype=rmFogB prob=0.5 invisible=True hidden=True,True follow=avatarB
-
         removeFog >
-            removeFogA > invisible=True hidden=True,True
+            removeFogA > color=RED invisible=True hidden=True,True
                 rmFogA > Spreader stype=rmA1 singleton=True
                 rmA1 > Spreader stype=rmA2
-                rmA2 > Spreader stype=rmA3
-                rmA3 > Flicker
+                rmA2 > Flicker
 
-            removeFogB > invisible=True hidden=True,True
+            removeFogB > color=BLUE invisible=True hidden=True,True
                 rmFogB > Spreader stype=rmB1 singleton=True
                 rmB1 > Spreader stype=rmB2
-                rmB2 > Spreader stype=rmB3
-                rmB3 > Flicker
+                rmB2 > Flicker
 
         #end of fog of war stuff
         #---------------------------------------------------------------------------------------------
@@ -36,44 +31,24 @@ BasicGame no_players=2 square_size=30
             berryBushVisB > hidden=True,False invisible=True,False stype=berryVisB
             berryBushVis > hidden=False invisible=False stype=berryVis
             berryBushHid > hidden=True invisible=True stype=berryHid
-        waterSource > SpawnPoint prob=0.01 total=20 img=newset/water4 invisible=True hidden=True stype=waterHid
 
         resourcepack > Resource #these die after a number of things spawned
-            water > color=BLUE img=newset/water4
-                waterVisA > hidden=False,True invisible=False,True
-                waterVisB > hidden=True,False invisible=True,False
-                waterVis > hidden=False invisible=False
-                waterHid > hidden=True invisible=True
             berry > img=oryx/bush3 shrinkfactor=0.7
                 berryVisA > hidden=False,True invisible=False,True
                 berryVisB > hidden=True,False invisible=True,False
                 berryVis > hidden=False invisible=False
                 berryHid > hidden=True invisible=True
 
-        spawnPotion > SpawnPoint
-            spPot1 > prob=0.001 invisible=True hidden=True stype=potHid
-            spPot2 > prob=0.01 invisible=True hidden=True stype=potHid
-            spPot3 > prob=0.0005 invisible=True hidden=True stype=potHid
-        potion > Resource img=oryx/potion3 shrinkfactor=0.9
-            potVisA > hidden=False,True invisible=False,True
-            potVisB > hidden=True,False invisible=True,False
-            potVis > hidden=False invisible=False
-            potHid > hidden=True invisible=True
-
-
-        #still to do
-        collectible > Resource
-            arrows > img=oryx/arrows1
-            bow > img=oryx/bow1
+        flyfood > Resource color=PINK shrinkfactor=0.7
 
         #-----------------------------------------------------------------------------------------------
         #avatar stuff
 
         avatar > ShootAvatar speed=1 healthPoints=200 limitHealthPoints=200
-            avatarA > img=newset/girl2 frameRate=8 color=RED #always visible to himself
+            avatarA > img=newset/girl2 frameRate=8 color=RED  #always visible to himself
                 avVisA > hidden=False,False invisible=False stype=hitAvis     #visible to B too
                 avHidA > hidden=False,True invisible=False,True stype=hitAhid #hidden from B
-            avatarB > img=newset/man3 frameRate=8 color=BLUE #always visible to himself
+            avatarB > img=newset/man3 frameRate=8 color=BLUE  #always visible to himself
                 avVisB > hidden=False,False invisible=False stype=hitBvis     #visible to A too
                 avHidB > hidden=True,False invisible=True,False stype=hitBhid #hidden from A
         hit > Flicker img=oryx/staff1 shrinkfactor=0.5
@@ -101,15 +76,15 @@ BasicGame no_players=2 square_size=30
             wallVis > hidden=False invisible=False
             wallHid > hidden=True invisible=True
 
-
         flying > RandomNPC cons=5 #still to do
             butterfly > img=newset/butterfly1 frameRate=8 speed=0.8 cooldown=2
-                hideBut > invisible=True hidden=True,False
-                showBut > invisible=False hidden=False,False
+                butVisA > hidden=False,True invisible=False,True
+                butVisB > hidden=True,False invisible=True,False
+                butVis > hidden=False invisible=False
+                butHid > hidden=True invisible=True
 
 
         #NOTES:
-        #   > use energy as ammo for players
         #   > give scores!
 
     InteractionSet
@@ -123,68 +98,61 @@ BasicGame no_players=2 square_size=30
         fogA removeFogA > transformTo stype=noFog
         fogB removeFogB > transformTo stype=noFog
 
+        avatarA fog fogA > spawn stype=rmFogA
+        avatarB fog fogB > spawn stype=rmFogB
+
         avVisA fog fogB > transformTo stype=avHidA #keepHealthPoints=True
         avVisB fog fogA > transformTo stype=avHidB #keepHealthPoints=True
-        avHidA fogA noFog > transformTo stype=avVisA #keepHealthPoints=True
-        avHidB fogB noFog > transformTo stype=avVisB #keepHealthPoints=True
+        avHidA noFog > transformTo stype=avVisA #keepHealthPoints=True
+        avHidB noFog > transformTo stype=avVisB #keepHealthPoints=True
 
-        treeVisA noFog > transformTo stype=treeVis
-        treeVisB noFog > transformTo stype=treeVis
         treeHid fogA > transformTo stype=treeVisB
         treeHid fogB > transformTo stype=treeVisA
+        treeVisA noFog > transformTo stype=treeVis
+        treeVisB noFog > transformTo stype=treeVis
 
-        wallVisA noFog > transformTo stype=wallVis
-        wallVisB noFog > transformTo stype=wallVis
         wallHid fogA > transformTo stype=wallVisB
         wallHid fogB > transformTo stype=wallVisA
+        wallVisA noFog > transformTo stype=wallVis
+        wallVisB noFog > transformTo stype=wallVis
 
-        berryBush fogB > transformTo stype=berryBushVisA
-        berryBush fogA > transformTo stype=berryBushVisB
-        berryBush noFog > transformTo stype=berryBushVis
-        berryHid fogB > transformTo stype=berryVisA
-        berryHid fogA > transformTo stype=berryVisB
-        berryHid noFog > transformTo stype=berryVis
+        berryBushHid fogB > transformTo stype=berryBushVisA
+        berryBushHid fogA > transformTo stype=berryBushVisB
+        berryBushVisA noFog > transformTo stype=berryBushVis
+        berryBushVisB noFog > transformTo stype=berryBushVis
 
-        spPot1 fogB > updateSpawnType stype=potVisA spawnPoint=spPot1
-        spPot1 fogA > updateSpawnType stype=potVisB spawnPoint=spPot1
-        spPot1 noFog > updateSpawnType stype=potVis spawnPoint=spPot1
-        spPot2 fogB > updateSpawnType stype=potVisA spawnPoint=spPot2
-        spPot2 fogA > updateSpawnType stype=potVisB spawnPoint=spPot2
-        spPot2 noFog > updateSpawnType stype=potVis spawnPoint=spPot2
-        spPot3 fogB > updateSpawnType stype=potVisA spawnPoint=spPot3
-        spPot3 fogA > updateSpawnType stype=potVisB spawnPoint=spPot3
-        spPot3 noFog > updateSpawnType stype=potVis spawnPoint=spPot3
-        potHid fogB > transformTo stype=potVisA
-        potHid fogA > transformTo stype=potVisB
-        potHid noFog > transformTo stype=potVis
-
-        waterVisA noFog > transformTo stype=waterVis
-        waterVisB noFog > transformTo stype=waterVis
-        waterVis fogA > transformTo stype=waterVisB
-        waterHid fogB > transformTo stype=waterVisA
+        butVisA noFog > transformTo stype=butVis
+        butVisB noFog > transformTo stype=butVis
+        butHid fogA > transformTo stype=butVisB
+        butHid fogB > transformTo stype=butVisA
+        butVis fogA > transformTo stype=butVisA
+        butVis fogB > transformTo stype=butVisB
+        butVisA fog > transformTo stype=butHid
 
         #------collision---------
-        animals animals avatar EOS wall tree water > stepBack pixelPerfect=True
-        flying flying EOS > stepBack pixelPerfect=True
-        avatar wall water tree > stepBack pixelPerfect=True
+        animals animals avatar EOS wall tree > stepBack
+        flying flying EOS > stepBack
+        avatarA wall tree > stepBack stype=removeFogA
+        avatarB wall tree > stepBack stype=removeFogB
 
 
         #------collecting--------
-        avatar potion > addHealthPointsToMax value=100
-        potion avatar > killSprite
-
         avatar berry > addHealthPointsToMax value=5
         berry avatar > killSprite
 
-        hitA water > addHealthPointsToMax value=10
-        water hitA > killSprite
+        avatar flyfood > addHealthPointsToMax value=50
+        flyfood avatar > killSprite
 
         #-------killing----------
         avatarA hitB > killSprite
         avatarB hitA > killSprite
 
+        flying hit > spawn stype=flyfood
+        flying hitA > killBoth
+        flying hitB > killBoth
+
         #-------other------------
-        potion potion > killSprite #avoid stacking potions
+        removeFogA removeFogA > killSprite #avoid a crazy number of sprites
     
     TerminationSet
         SpriteCounter stype=avatar limit=0 win=False,False
@@ -193,21 +161,12 @@ BasicGame no_players=2 square_size=30
     
     LevelMapping
         _ > land fog
-        A > avVisA land fog spawnRmFogA
-        B > avVisB land fog spawnRmFogB
-        h > treeHid land  fog
+        A > avHidA land fogB
+        B > avHidB land fogA
+        h > treeHid land fog
         w > land wallHid fog
-        1 > land spPot1 fog
-        2 > land spPot2 fog
-        3 > land spPot3 fog
         b > land berryBushHid fog
-        . > waterSource land fog
-
-        q > land wall  fog
-        + > land fog
-        u > land showBut fog
-        a > land bear fog
+        u > land butHid fog
 
         f > arrows land fog
         g > bow land fog
-        r > sword land fog

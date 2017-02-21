@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
+import core.VGDLRegistry;
 import core.VGDLSprite;
 import core.competition.CompetitionParameters;
 import core.content.SpriteContent;
@@ -20,6 +21,9 @@ import tools.*;
  * This is a Java port from Tom Schaul's VGDL - https://github.com/schaul/py-vgdl
  */
 public class MovingAvatar extends VGDLSprite {
+
+    public int ifollow;
+    public String follow;
 
     public boolean alternate_keys;
     public ArrayList<Types.ACTIONS> actions;
@@ -62,6 +66,7 @@ public class MovingAvatar extends VGDLSprite {
 
         color = Types.WHITE;
         speed = 1;
+        ifollow = -1;
         is_avatar = true;
         alternate_keys = false;
         is_disqualified = false;
@@ -86,6 +91,9 @@ public class MovingAvatar extends VGDLSprite {
             actionsNIL.add(act);
         }
         actionsNIL.add(Types.ACTIONS.ACTION_NIL);
+
+        if(follow != null) //Could be, if we're using different stype variants in subclasses.
+            ifollow = VGDLRegistry.GetInstance().getRegisteredSpriteValue(follow);
     }
 
     /**
@@ -125,8 +133,19 @@ public class MovingAvatar extends VGDLSprite {
     	//this.physics.passiveMovement(this);
     	if (physicstype_id != 0)
     		super.updatePassive();
-    	if (action.x()!=0.0 || action.y()!=0.0)
-    		lastMovementType = this.physics.activeMovement(this, action, speed);
+    	if (action.x()!=0.0 || action.y()!=0.0) {
+            lastMovementType = this.physics.activeMovement(this, action, speed);
+            if (follow != null) {
+                for (int i : game.getSubTypes(ifollow)) {
+                    ArrayList<VGDLSprite> sp = game.getSprites(i);
+                    if (!sp.isEmpty()) {
+                        for (VGDLSprite s : sp)
+                            this.physics.activeMovement(s, action, speed);
+                    }
+                }
+                // Add here the sprites to follow avatar's movement
+            }
+        }
     }
 
     /**

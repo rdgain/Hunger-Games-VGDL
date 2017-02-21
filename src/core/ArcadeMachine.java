@@ -145,7 +145,7 @@ public class ArcadeMachine {
 		for (int i = 0; i < no_players; i++) {
 
 			humans[i] = isHuman(names[i]);
-			if (humans[i]) toPlay.humanPlayer = i;
+			toPlay.humanPlayer[i] = humans[i];
 			anyHuman |= humans[i];
 
 			if (no_players > 1) {

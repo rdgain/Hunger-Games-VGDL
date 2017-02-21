@@ -25,9 +25,9 @@ public class Agent extends AbstractMultiPlayer {
     public static int SIMULATION_DEPTH = 10; //try 6,8,10
     protected int INIT_TYPE = Agent.INIT_RANDOM;
     protected int BUDGET_TYPE = Agent.HALF_BUDGET;
-    public static int MAX_FM_CALLS = 900;
+    public static int MAX_FM_CALLS = 100;
     protected int HEURISTIC_TYPE = Agent.HEURISTIC_WINSCORE;
-    protected int MACRO_ACTION_LENGTH = 3;
+    protected int MACRO_ACTION_LENGTH = 1;
 
     private int CROSSOVER_TYPE = UNIFORM_CROSS; // 0 - 1point; 1 - uniform
 
