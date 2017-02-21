@@ -1,4 +1,4 @@
-BasicGame no_players=2 square_size=30
+BasicGame no_players=2 square_size=40
 
     SpriteSet
         land > Immovable hidden=True,True img=oryx/grass autotiling=True
@@ -24,14 +24,14 @@ BasicGame no_players=2 square_size=30
 
         #-----------------------end-of-fog-of-war-stuff--------------------------------------
 
-        berryBush > SpawnPoint total=100 prob=0.001 img=oryx/bush5 shrinkfactor=0.7
+        berryBush > SpawnPoint total=100 prob=0.001 img=oryx/bush5 shrinkfactor=0.5
             berryBushVisA > hidden=False,True invisible=False,True stype=berryVisA
             berryBushVisB > hidden=True,False invisible=True,False stype=berryVisB
             berryBushVis > hidden=False invisible=False stype=berryVis
             berryBushHid > hidden=True invisible=True stype=berryHid
 
         resourcepack > Resource #these die after a number of things spawned
-            berry > img=oryx/bush3 shrinkfactor=0.7
+            berry > img=oryx/bush3 shrinkfactor=0.5
                 berryVisA > hidden=False,True invisible=False,True
                 berryVisB > hidden=True,False invisible=True,False
                 berryVis > hidden=False invisible=False
