@@ -3,8 +3,7 @@ BasicGame no_players=2 square_size=30
     SpriteSet
         land > Immovable hidden=True,True img=oryx/grass autotiling=True
 
-        #-----------------------------------------------------------------------------------------------
-        #fog of war stuff
+        #--------------------------fog-of-war-stuff------------------------------------------
 
         fogofwar > Immovable color=DARKGRAY
             fogA > invisible=False,True hidden=False,True #only A sees fog, B doesn't
@@ -23,8 +22,7 @@ BasicGame no_players=2 square_size=30
                 rmB1 > Spreader stype=rmB2
                 rmB2 > Flicker
 
-        #end of fog of war stuff
-        #---------------------------------------------------------------------------------------------
+        #-----------------------end-of-fog-of-war-stuff--------------------------------------
 
         berryBush > SpawnPoint total=100 prob=0.001 img=oryx/bush5 shrinkfactor=0.7
             berryBushVisA > hidden=False,True invisible=False,True stype=berryVisA
@@ -42,16 +40,25 @@ BasicGame no_players=2 square_size=30
         flyfood > Resource color=PINK shrinkfactor=0.5 img=oryx/mushroom2
         food > Resource color=BLUE shrinkfactor=0.5 img=oryx/mushroom1
 
-        #-----------------------------------------------------------------------------------------------
-        #avatar stuff
+        collectible > Resource
+            ar > img=oryx/arrows2 shrinkfactor=0.8
+                arrowsVisA > hidden=False,True invisible=False,True #A can see them
+                arrowsVisB > hidden=False,True invisible=False,True #B can see them
+                arrowsVis > hidden=False invisible=False
+                arrowsHid > hidden=True invisible=True
+
+        arrowSpawn > SpawnPoint invisible=True hidden=True prob=0.001 stype=arrowsHid
+
+        #-----------------------------avatar-stuff-------------------------------------------
 
         avatar > ShootAvatar speed=1 healthPoints=200 limitHealthPoints=200
-            avatarA > img=newset/girl2 frameRate=8 color=RED  #always visible to himself
-                avVisA > hidden=False,False invisible=False stype=hitAvis     #visible to B too
-                avHidA > hidden=False,True invisible=False,True stype=hitAhid #hidden from B
-            avatarB > img=newset/man3 frameRate=8 color=BLUE  #always visible to himself
-                avVisB > hidden=False,False invisible=False stype=hitBvis     #visible to A too
-                avHidB > hidden=True,False invisible=True,False stype=hitBhid #hidden from A
+            avatarA > img=oryx/archer1 color=RED  #always visible to himself
+                avVisA > hidden=False,False invisible=False stype=shootVisA,hitAvis ammo=arrows     #visible to B too
+                avHidA > hidden=False,True invisible=False,True stype=shootHidA,hitAhid ammo=arrows #hidden from B
+            avatarB > img=oryx/archer1 color=BLUE  #always visible to himself
+                avVisB > hidden=False,False invisible=False stype=shootVisB,hitBvis ammo=arrows     #visible to A too
+                avHidB > hidden=True,False invisible=True,False stype=shootHidB,hitBhid ammo=arrows #hidden from A
+
         hit > Flicker img=oryx/staff1 shrinkfactor=0.5
             hitA > singleton=True
                 hitAvis > hidden=False invisible=False
@@ -60,14 +67,23 @@ BasicGame no_players=2 square_size=30
                 hitBvis > hidden=False invisible=False
                 hitBhid > hidden=True,False invisible=True,False
 
-        #end of avatar stuff
-        #---------------------------------------------------------------------------------------------
+        shoot > Missile img=oryx/bullet1 speed=0.5 timeToLive=15
+            shootA > singleton=True
+                shootVisA > hidden=False invisible=False
+                shootHidA > hidden=False,True invisible=False,True
+            shootB > singleton=True
+                shootVisB > hidden=False invisible=False
+                shootHidB > hidden=True,False invisible=True,False
+
+        arrows > Resource color=BLUE limit=10
+
+        #-------------------------end-of-avatar-stuff-----------------------------------------
 
         animalSpawn > SpawnPoint stype=bearHid prob=0.0008 invisible=True hidden=True
         flyingSpawn > SpawnPoint stype=butHid prob=0.002 invisible=True hidden=True
 
         animal > RandomNPC cons=2
-            bear > img=oryx/bear1 cooldown=8 speed=0.3 shrinkfactor=0.4
+            bear > img=oryx/bear1 cooldown=8 speed=0.3 shrinkfactor=0.7
                 bearVisA > hidden=False,True invisible=False,True
                 bearVisB > hidden=True,False invisible=True,False
                 bearVis > hidden=False invisible=False
@@ -85,15 +101,11 @@ BasicGame no_players=2 square_size=30
             wallHid > hidden=True invisible=True
 
         flying > RandomNPC cons=5
-            butterfly > img=newset/butterfly1 frameRate=8 speed=0.8 cooldown=2
+            butterfly > img=newset/butterfly1 frameRate=8 speed=0.8 cooldown=2 shrinkfactor=0.8
                 butVisA > hidden=False,True invisible=False,True
                 butVisB > hidden=True,False invisible=True,False
                 butVis > hidden=False invisible=False
                 butHid > hidden=True invisible=True
-
-
-        #NOTES:
-        #   > give scores!
 
     InteractionSet
 
@@ -109,10 +121,15 @@ BasicGame no_players=2 square_size=30
         avatarA fog fogA > spawn stype=rmFogA
         avatarB fog fogB > spawn stype=rmFogB
 
-        avVisA fog fogB > transformTo stype=avHidA #keepHealthPoints=True
-        avVisB fog fogA > transformTo stype=avHidB #keepHealthPoints=True
-        avHidA noFog > transformTo stype=avVisA #keepHealthPoints=True
-        avHidB noFog > transformTo stype=avVisB #keepHealthPoints=True
+        avVisA fog fogB > transformTo stype=avHidA
+        avVisB fog fogA > transformTo stype=avHidB
+        avHidA noFog > transformTo stype=avVisA
+        avHidB noFog > transformTo stype=avVisB
+
+        shootVisA fog fogB > transformTo stype=shootHidA
+        shootVisB fog fogA > transformTo stype=shootHidB
+        shootHidA noFog > transformTo stype=shootVisA
+        shootHidB noFog > transformTo stype=shootVisB
 
         treeHid fogA > transformTo stype=treeVisB
         treeHid fogB > transformTo stype=treeVisA
@@ -128,6 +145,11 @@ BasicGame no_players=2 square_size=30
         berryBushHid fogA > transformTo stype=berryBushVisB
         berryBushVisA noFog > transformTo stype=berryBushVis
         berryBushVisB noFog > transformTo stype=berryBushVis
+
+        arrowsHid fogA > transformTo stype=arrowsVisB
+        arrowsHid fogB > transformTo stype=arrowsVisA
+        arrowsVisA noFog > transformTo stype=arrowsVis
+        arrowsVisB noFog > transformTo stype=arrowsVis
 
         butVisA noFog > transformTo stype=butVis
         butVisB noFog > transformTo stype=butVis
@@ -161,17 +183,21 @@ BasicGame no_players=2 square_size=30
         avatar food > addHealthPointsToMax value=50
         food avatar > killSprite
 
+        avatarA ar > changeResource resource=arrows value=5
+        avatarB ar > changeResource resource=arrows value=5
+        ar avatar > killSprite
+
         #-------killing----------
-        avatarA hitB > killSprite
-        avatarB hitA > killSprite
+        avatarA hitB shootB > subtractHealthPoints value=20
+        avatarB hitA shootA > subtractHealthPoints value=20
 
-        flying hit > spawn stype=flyfood
-        flying hitA > killBoth
-        flying hitB > killBoth
+        flying hit shoot > spawn stype=flyfood
+        flying hitA shootA > killBoth
+        flying hitB shootB > killBoth
 
-        animal hit > spawn stype=food
-        animal hitA > killBoth
-        animal hitB > killBoth
+        animal hit shoot > spawn stype=food
+        animal hitA shootA > killBoth
+        animal hitB shootB > killBoth
 
         #-------other------------
         removeFogA removeFogA > killSprite #avoid a crazy number of sprites
@@ -190,6 +216,4 @@ BasicGame no_players=2 square_size=30
         b > land berryBushHid fog
         u > land flyingSpawn fog
         q > land tree animalSpawn fog
-
-        f > arrows land fog
-        g > bow land fog
+        0 > arrowSpawn land fog
