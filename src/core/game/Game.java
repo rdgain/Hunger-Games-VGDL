@@ -933,8 +933,8 @@ public abstract class Game
                         }
                     }
                     if (sb.equals("")) sb = "NONE";
-                    JOptionPane.showMessageDialog(frame,
-                            "GAMEOVER - WINNER: " + sb);
+                    JOptionPane.showOptionDialog(frame,
+                            "GAMEOVER - WINNER: " + sb,frame.getTitle(), JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE, null, new Object[]{}, null);
                 }
             }
             frame.dispose();
