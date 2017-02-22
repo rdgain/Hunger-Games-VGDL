@@ -11,5 +11,7 @@ import core.game.StateObservationMulti;
  */
 public abstract class StateHeuristicMulti {
 
-    abstract public double evaluateState(StateObservationMulti stateObs, int playerID);
+    abstract public double evaluateState(StateObservationMulti stateObs, int playerID, boolean changed, int state);
+    abstract public void setDistMoved(double distMoved);
+    abstract public void setFirstState(StateObservationMulti state);
 }

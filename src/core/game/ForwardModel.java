@@ -747,6 +747,13 @@ public class ForwardModel extends Game
         return avatars[playerID].getPosition();
     }
 
+    public Vector2d getAvatarLastPosition(int playerID) {
+        if(isEnded)
+            return Types.NIL;
+        return new Vector2d(avatars[playerID].lastrect.x, avatars[playerID].lastrect.y);
+    }
+
+
     /**
      * Returns the speed of the avatar. If the game is finished, we cannot guarantee that
      * this speed reflects the real speed of the avatar (the avatar itself could be

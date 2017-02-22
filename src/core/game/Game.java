@@ -1450,7 +1450,9 @@ public abstract class Game
             }
         }
 
-        if (ef.prompt != null) nextPrompts.add(ef.prompt);
+        if (ef.prompt != null) {
+            nextPrompts.add(ef.prompt);
+        }
     }
 
     private void addEvent(VGDLSprite s1, VGDLSprite s2)

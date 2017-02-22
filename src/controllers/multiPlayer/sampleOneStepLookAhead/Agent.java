@@ -70,7 +70,7 @@ public class Agent extends AbstractMultiPlayer {
 
             stCopy.advance(acts);
 
-            double Q = heuristic.evaluateState(stCopy, id);
+            double Q = heuristic.evaluateState(stCopy, id, true, 0);
             Q = Utils.noise(Q, this.epsilon, this.m_rnd.nextDouble());
 
             //System.out.println("Action:" + action + " score:" + Q);

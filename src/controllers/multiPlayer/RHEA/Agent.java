@@ -418,7 +418,7 @@ public class Agent extends AbstractMultiPlayer {
 
         StateObservationMulti first = st.copy();
         double value = 0;
-        value = heuristic.evaluateState(first, playerID);
+        value = heuristic.evaluateState(first, playerID, true, 0);
 
 
         /*
@@ -427,7 +427,7 @@ public class Agent extends AbstractMultiPlayer {
         value *= Math.pow(DISCOUNT,i);
 
         individual.value = value;
-        individual.lastValue = heuristic.evaluateState(last, playerID) * Math.pow(DISCOUNT, i-1);
+//        individual.lastValue = heuristic.evaluateState(last, playerID) * Math.pow(DISCOUNT, i-1);
 
 
         acumTimeTakenEval += (elapsedTimerIterationEval.elapsedMillis());

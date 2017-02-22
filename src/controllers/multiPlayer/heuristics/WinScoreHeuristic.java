@@ -21,7 +21,7 @@ public class WinScoreHeuristic extends StateHeuristicMulti {
 
     }
 
-    public double evaluateState(StateObservationMulti stateObs, int playerID) {
+    public double evaluateState(StateObservationMulti stateObs, int playerID, boolean changed, int state) {
         boolean gameOver = stateObs.isGameOver();
         Types.WINNER win = stateObs.getMultiGameWinner()[playerID];
         Types.WINNER oppWin = stateObs.getMultiGameWinner()[(playerID + 1) % stateObs.getNoPlayers()];
@@ -34,6 +34,16 @@ public class WinScoreHeuristic extends StateHeuristicMulti {
             return HUGE_POSITIVE;
 
         return rawScore;
+    }
+
+    @Override
+    public void setDistMoved(double distMoved) {
+
+    }
+
+    @Override
+    public void setFirstState(StateObservationMulti state) {
+
     }
 
 

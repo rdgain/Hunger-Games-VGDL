@@ -1,9 +1,6 @@
 package core;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,8 +41,9 @@ public class VGDLViewer extends JComponent
      */
     public Player[] players;
 
-    int promptDelay = 5; // number of frames the prompt will be displayed
+    int promptDelay = 10; // number of frames the prompt will be displayed
     int delayCounter;
+    int fontsize = 30;
 
     ArrayList<String> prompts;
 
@@ -107,13 +105,18 @@ public class VGDLViewer extends JComponent
             game.nextPrompts.clear();
         } else if (delayCounter < promptDelay) {
             for (String s : prompts) {
-                int x = 0; // midde of screen, but depends on number of prompts
-                int y = 0;
+                int x = getWidth()/2 - (s.length()/2) * fontsize / 4;
+                int y = getHeight()/2 - fontsize / 4;
+                g.setFont(new Font("TimesRoman", Font.BOLD, fontsize)); ;
+                g.setColor(Color.WHITE);
                 g.drawString(s, x, y);
             }
         } else {
             delayCounter = 0;
             prompts.clear();
+        }
+        if (!prompts.isEmpty()) {
+            delayCounter++;
         }
 
     }

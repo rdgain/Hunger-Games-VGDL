@@ -44,7 +44,6 @@ public class Individual implements Comparable{
     /**
      * Returns new individual
      * @param MUT
-     * @param BANDIT_SELECTION
      * @return
      */
     public Individual mutate (int MUT, boolean INIT) {
@@ -157,7 +156,7 @@ public class Individual implements Comparable{
 
                     StateObservationMulti stCopy = so.copy();
                     stCopy.advance(action);
-                    double Q = heuristic.evaluateState(stCopy, playerID);
+                    double Q = heuristic.evaluateState(stCopy, playerID, true, 0);
                     Q = Utils.noise(Q, Agent.epsilon, gen.nextDouble());
 
                     //System.out.println("Action:" + action + " score:" + Q);

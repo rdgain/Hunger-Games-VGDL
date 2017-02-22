@@ -50,13 +50,23 @@ BasicGame no_players=2 square_size=40
         animalSpawn > SpawnPoint stype=bearHid prob=0.0008 invisible=True hidden=True
         flyingSpawn > SpawnPoint stype=butHid prob=0.002 invisible=True hidden=True
         arrowSpawn > SpawnPoint invisible=True hidden=True prob=0.001 stype=arrowsHid
+        wolfSpawnA > SpawnPoint total=3 stype=wolfHidA invisible=True hidden=True
+        wolfSpawnB > SpawnPoint total=3 stype=wolfHidB invisible=True hidden=True
+        spawnW > Immovable invisible=True hidden=True
 
-        animal > RandomNPC cons=2
-            bear > img=oryx/bear1 cooldown=8 speed=0.3 shrinkfactor=0.7
+        animal >
+            bear > RandomNPC cons=2 img=oryx/bear1 cooldown=8 speed=0.3 shrinkfactor=0.7
                 bearVisA > hidden=False,True invisible=False,True
                 bearVisB > hidden=True,False invisible=True,False
                 bearVis > hidden=False invisible=False
                 bearHid > hidden=True invisible=True
+        wolf >
+            wolfA > Chaser img=oryx/wolf1 stype=avatarA cooldown=2
+                wolfVisA > hidden=False invisible=False
+                wolfHidA > hidden=False,True invisible=False,True
+            wolfB > Chaser img=oryx/wolf2 stype=avatarB cooldown=2
+                wolfVisB > hidden=False invisible=False
+                wolfHidB > hidden=True,False invisible=True,False
 
         tree > Immovable color=GREEN img=oryx/tree2
             treeVisA > hidden=False,True invisible=False,True
@@ -109,6 +119,8 @@ BasicGame no_players=2 square_size=40
 
     InteractionSet
 
+        spawnW TIME > spawn stype=wolfSpawnA timer=500 repeating=True prompt=PUPPIES!
+        spawnW TIME > spawn stype=wolfSpawnB timer=500 repeating=True
         avatarA TIME > subtractHealthPoints timer=5 repeating=True
         avatarB TIME > subtractHealthPoints timer=5 repeating=True
 
@@ -118,8 +130,8 @@ BasicGame no_players=2 square_size=40
         fogA removeFogA > transformTo stype=noFog scoreChange=1,0
         fogB removeFogB > transformTo stype=noFog scoreChange=0,1
 
-        avatarA fog fogA > spawn stype=rmFogA scoreChange=1,0
-        avatarB fog fogB > spawn stype=rmFogB scoreChange=0,1
+        avatarA fog fogA > spawn stype=rmFogA
+        avatarB fog fogB > spawn stype=rmFogB
 
         avVisA fog fogB > transformTo stype=avHidA
         avVisB fog fogA > transformTo stype=avHidB
@@ -130,6 +142,11 @@ BasicGame no_players=2 square_size=40
         shootVisB fog fogA > transformTo stype=shootHidB
         shootHidA noFog > transformTo stype=shootVisA
         shootHidB noFog > transformTo stype=shootVisB
+
+        wolfVisA fog fogB > transformTo stype=wolfHidA
+        wolfVisB fog fogA > transformTo stype=wolfHidB
+        wolfHidA noFog > transformTo stype=wolfVisA
+        wolfHidB noFog > transformTo stype=wolfVisB
 
         treeHid fogA > transformTo stype=treeVisB
         treeHid fogB > transformTo stype=treeVisA
@@ -174,16 +191,16 @@ BasicGame no_players=2 square_size=40
         avatarB wall tree > stepBack stype=removeFogB
 
         #------collecting--------
-        avatarA berry > addHealthPointsToMax value=5 scoreChange=5,0
-        avatarB berry > addHealthPointsToMax value=5 scoreChange=0,5
+        avatarA berry > addHealthPointsToMax value=5 scoreChange=1,0
+        avatarB berry > addHealthPointsToMax value=5 scoreChange=0,1
         berry avatar > killSprite
 
-        avatarA flyfood > addHealthPointsToMax value=20 scoreChange=10,0
-        avatarB flyfood > addHealthPointsToMax value=20 scoreChange=0,10
+        avatarA flyfood > addHealthPointsToMax value=20 scoreChange=2,0
+        avatarB flyfood > addHealthPointsToMax value=20 scoreChange=0,2
         flyfood avatar > killSprite
 
-        avatarA food > addHealthPointsToMax value=50 scoreChange=25,0
-        avatarB food > addHealthPointsToMax value=50 scoreChange=0,25
+        avatarA food > addHealthPointsToMax value=50 scoreChange=3,0
+        avatarB food > addHealthPointsToMax value=50 scoreChange=0,3
         food avatar > killSprite
 
         avatarA ar > changeResource resource=arrows value=5 scoreChange=5,0
@@ -191,24 +208,32 @@ BasicGame no_players=2 square_size=40
         ar avatar > killSprite
 
         #-------killing----------
-        avatarA hitB > subtractHealthPoints value=5 scoreChange=5,-2
-        avatarA shootB > subtractHealthPoints value=10 scoreChange=10,-5
-        avatarB hitA > subtractHealthPoints value=5 scoreChange=-2,5
-        avatarB shootA > subtractHealthPoints value=10 scoreChange=-5,10
+        avatarA hitB > subtractHealthPoints value=5 scoreChange=-2,5
+        avatarA shootB > subtractHealthPoints value=10 scoreChange=-5,10
+        avatarB hitA > subtractHealthPoints value=5 scoreChange=5,-2
+        avatarB shootA > subtractHealthPoints value=10 scoreChange=10,-5
 
         flying hit shoot > spawn stype=flyfood
-        flying hitA shootA > killBoth scoreChange=10,0
-        flying hitB shootB > killBoth scoreChange=0,10
+        flying hitA shootA > killBoth scoreChange=5,0
+        flying hitB shootB > killBoth scoreChange=0,5
 
         animal hit shoot > spawn stype=food
-        animal hitA shootA > killBoth scoreChange=25,0
-        animal hitB shootB > killBoth scoreChange=0,25
+        animal hitA shootA > killBoth scoreChange=10,0
+        animal hitB shootB > killBoth scoreChange=0,10
+
+        wolf hit shoot > spawn stype=food
+        wolf hitA shootA > killBoth scoreChange=15,0
+        wolf hitB shootB > killBoth scoreChange=0,15
+
+        avatarA wolf > subtractHealthPoints value=2 scoreChange=-1,0
+        avatarB wolf > subtractHealthPoints value=2 scoreChange=0,-1
+        wolf EOS wall avatar wolf > stepBack
 
         #-------other------------
         removeFogA removeFogA > killSprite #avoid a crazy number of sprites
 
-        hit avatar flying animal wall > killSprite #destroy weapon after hitting target; can't go through walls
-        shoot avatar flying animal wall > killSprite #destroy bullet after reaching target; can't go through walls
+        hit avatar flying animal wolf wall > killSprite #destroy weapon after hitting target; can't go through walls
+        shoot avatar flying animal wolf wall > killSprite #destroy bullet after reaching target; can't go through walls
     
     TerminationSet
         SpriteCounter stype=avatar limit=0 win=False,False
@@ -225,3 +250,4 @@ BasicGame no_players=2 square_size=40
         u > land flyingSpawn fog
         q > land tree animalSpawn fog
         0 > arrowSpawn land fog
+        f > spawnW land fog

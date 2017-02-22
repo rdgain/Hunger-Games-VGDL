@@ -992,16 +992,16 @@ public class ArcadeMachine {
 				player.setPlayerID(playerID);
 			}
 			// Check if we returned on time, and act in consequence.
-			long timeTaken = ect.elapsedMillis();
-			if (ect.exceededMaxTime()) {
-				long exceeded = -ect.remainingTimeMillis();
-				System.out.println("Controller initialization time out (" + exceeded + ").");
-
-				return null;
-			} else {
-				if (VERBOSE)
-					System.out.println("Controller initialization time: " + timeTaken + " ms.");
-			}
+//			long timeTaken = ect.elapsedMillis();
+//			if (ect.exceededMaxTime()) {
+//				long exceeded = -ect.remainingTimeMillis();
+//				System.out.println("Controller initialization time out (" + exceeded + ").");
+//
+//				return null;
+//			} else {
+//				if (VERBOSE)
+//					System.out.println("Controller initialization time: " + timeTaken + " ms.");
+//			}
 
 			// This code can throw many exceptions (no time related):
 

@@ -1,32 +1,34 @@
 package controllers.multiPlayer.sampleRHEA;
 
+import controllers.multiPlayer.RHEA.sampleOLMCTS.SingleTreeNode;
+import controllers.multiPlayer.heuristics.SimpleStateHeuristic;
 import controllers.multiPlayer.heuristics.StateHeuristicMulti;
 import controllers.multiPlayer.heuristics.WinScoreHeuristic;
 import core.game.StateObservationMulti;
 import core.player.AbstractMultiPlayer;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
+import tools.Vector2d;
 
 import java.util.*;
+
 
 public class Agent extends AbstractMultiPlayer {
 
     // variable
-    private int POPULATION_SIZE = 10;
+    private int POPULATION_SIZE = 5;
     private int SIMULATION_DEPTH = 10;
     private int CROSSOVER_TYPE = UNIFORM_CROSS;
     private double DISCOUNT = 1; //0.99;
 
     // set
     private boolean REEVALUATE = false;
-    //    private boolean REPLACE = false;
-    private int MUTATION = 1;
+    private int MUTATION = 3;
     private int TOURNAMENT_SIZE = 2;
-    private int RESAMPLE = 1;
     private int ELITISM = 1;
 
     // constants
-    private final long BREAK_MS = 10;
+    private final long BREAK_MS = 5;
     public static final double epsilon = 1e-6;
     static final int POINT1_CROSS = 0;
     static final int UNIFORM_CROSS = 1;
@@ -45,6 +47,11 @@ public class Agent extends AbstractMultiPlayer {
     private boolean keepIterating = true;
     private long remaining;
 
+    Vector2d lastDiffPos;
+    int ATTACK_DIST = 5;
+    int RESOURCE_DIST = 5;
+    double ATTACK_BREAK = 0.4; // chance to recklessly attack enemy, the bigger the more aggressive
+
 
     //Multiplayer game parameters
     int playerID, opponentID, noPlayers;
@@ -57,13 +64,16 @@ public class Agent extends AbstractMultiPlayer {
      */
     public Agent(StateObservationMulti stateObs, ElapsedCpuTimer elapsedTimer, int playerID) {
         randomGenerator = new Random();
-        heuristic = new WinScoreHeuristic(stateObs);
+        heuristic = new SimpleStateHeuristic(stateObs);
         this.timer = elapsedTimer;
 
         // Get multiplayer game parameters
         this.playerID = playerID;
         noPlayers = stateObs.getNoPlayers();
         opponentID = (playerID+1)%noPlayers;
+        lastDiffPos = stateObs.getAvatarPosition(playerID);
+        ATTACK_DIST *= stateObs.getBlockSize();
+        RESOURCE_DIST *= stateObs.getBlockSize();
 
         // INITIALISE POPULATION
         init_pop(stateObs);
@@ -160,9 +170,32 @@ public class Agent extends AbstractMultiPlayer {
      */
     private double evaluate(Individual individual, StateHeuristicMulti heuristic, StateObservationMulti state) {
 
+        //decide state we're in
+        Vector2d thispos = state.getAvatarPosition(playerID);
+        boolean changed = false;
+        if (!thispos.equals(lastDiffPos)) {
+            lastDiffPos = thispos;
+            changed = true;
+        }
+
+        int fsm = 0;
+        if (isOpponentInRange(state)) {
+            if (canFight(state)) {
+                fsm = 2;
+            } else {
+                fsm = 3;
+            }
+        } else if (isResourceNear(state)) {
+            fsm = 1;
+        }
+
+//        System.out.println("State: " + fsm);
+
         ElapsedCpuTimer elapsedTimerIterationEval = new ElapsedCpuTimer();
 
         StateObservationMulti st = state.copy();
+        heuristic.setFirstState(state);
+
         int i;
         for (i = 0; i < SIMULATION_DEPTH; i++) {
             double acum = 0, avg;
@@ -187,8 +220,10 @@ public class Agent extends AbstractMultiPlayer {
             }
         }
 
+        heuristic.setDistMoved(thispos.dist(st.getAvatarPosition(playerID))/state.getBlockSize());
+
         StateObservationMulti first = st.copy();
-        double value = heuristic.evaluateState(first, playerID);
+        double value = heuristic.evaluateState(first, playerID, changed, fsm);
 
         // Apply discount factor
         value *= Math.pow(DISCOUNT,i);
@@ -201,6 +236,21 @@ public class Agent extends AbstractMultiPlayer {
         remaining = timer.remainingTimeMillis();
 
         return value;
+    }
+
+    boolean isOpponentInRange(StateObservationMulti state) {
+        return state.getAvatarPosition(playerID).dist(state.getAvatarPosition(opponentID)) < ATTACK_DIST;
+    }
+
+    boolean canFight(StateObservationMulti state) {
+        return randomGenerator.nextDouble() <= ATTACK_BREAK || state.getAvatarHealthPoints(playerID) > state.getAvatarHealthPoints(opponentID);
+    }
+
+    boolean isResourceNear(StateObservationMulti state) {
+        try {
+            return state.getResourcesPositions(state.getAvatarPosition(playerID))[0].get(0).sqDist < RESOURCE_DIST;
+        } catch (Exception e) {}
+        return false;
     }
 
     /**

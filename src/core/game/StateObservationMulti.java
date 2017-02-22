@@ -90,6 +90,11 @@ public class StateObservationMulti extends StateObservation {
         return model.getAvatarPosition(playerID);
     }
 
+    public Vector2d getAvatarLastPosition(int playerID)
+    {
+        return model.getAvatarLastPosition(playerID);
+    }
+
     /**
      * Method overloaded for multi player games. Now passes the player ID.
      * Returns the speed of the avatar. If the game is finished, we cannot guarantee that

@@ -6,6 +6,7 @@ import core.game.StateObservationMulti;
 import core.player.AbstractMultiPlayer;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
+import tools.Vector2d;
 
 import java.util.*;
 
@@ -34,6 +35,9 @@ public class Agent extends AbstractMultiPlayer {
     private int numEvals = 0;
     private long remaining;
 
+    Vector2d lastDiffPos;
+    int ATTACK_DIST = 10;
+    int RESOURCE_DIST = 3;
 
     int playerID, opponentID, noPlayers;
 
@@ -52,6 +56,9 @@ public class Agent extends AbstractMultiPlayer {
         this.playerID = playerID;
         noPlayers = stateObs.getNoPlayers();
         opponentID = (playerID+1)%noPlayers;
+        lastDiffPos = stateObs.getAvatarPosition(playerID);
+        ATTACK_DIST *= stateObs.getBlockSize();
+        RESOURCE_DIST *= stateObs.getBlockSize();
 
         // INITIALISE POPULATION
         init_pop(stateObs);
@@ -84,6 +91,20 @@ public class Agent extends AbstractMultiPlayer {
      */
     private double evaluate(Individual individual, StateHeuristicMulti heuristic, StateObservationMulti state) {
 
+        //decide state we're in
+        Vector2d thispos = state.getAvatarPosition(playerID);
+        boolean changed = false;
+        if (!thispos.equals(lastDiffPos)) {lastDiffPos = thispos; changed = true;}
+
+        int fsm = 0;
+        if (isOpponentInRange(state)) {
+            if (canFight(state)) {
+                fsm = 2;
+            } else fsm = 3;
+        } else if (isResourceNear(state)) {
+            fsm = 1;
+        }
+
         ElapsedCpuTimer elapsedTimerIterationEval = new ElapsedCpuTimer();
 
         StateObservationMulti st = state.copy();
@@ -111,8 +132,9 @@ public class Agent extends AbstractMultiPlayer {
             }
         }
 
+        heuristic.setDistMoved(thispos.dist(st.getAvatarPosition(playerID)));
         StateObservationMulti first = st.copy();
-        double value = heuristic.evaluateState(first, playerID);
+        double value = heuristic.evaluateState(first, playerID, changed, fsm);
 
         // Apply discount factor
         value *= Math.pow(DISCOUNT,i);
@@ -127,6 +149,20 @@ public class Agent extends AbstractMultiPlayer {
         return value;
     }
 
+    boolean isOpponentInRange(StateObservationMulti state) {
+        return state.getAvatarPosition(playerID).dist(state.getAvatarPosition(opponentID)) < ATTACK_DIST;
+    }
+
+    boolean canFight(StateObservationMulti state) {
+        return state.getAvatarHealthPoints(playerID) > state.getAvatarHealthPoints(opponentID);
+    }
+
+    boolean isResourceNear(StateObservationMulti state) {
+        try {
+            return state.getResourcesPositions(state.getAvatarPosition(playerID))[0].get(0).sqDist < RESOURCE_DIST;
+        } catch (Exception e) {}
+        return false;
+    }
 
     /**
      * Insert a new individual into the population at the specified position by replacing the old one.
