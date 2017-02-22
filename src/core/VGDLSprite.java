@@ -719,12 +719,9 @@ public abstract class VGDLSprite {
     {
     	if(draw_arrow)
         {
-            Color arrowColor = new Color(color.getRed(), 255-color.getGreen(), color.getBlue());
+            Color arrowColor = Color.WHITE; // new Color(color.getRed(), 255-color.getGreen(), color.getBlue());
             Polygon p = Utils.triPoints(r, orientation);
 
-            g.setColor(arrowColor);
-            //g.drawPolygon(p);
-            g.fillPolygon(p);
 
             // Rotation information
             
@@ -744,8 +741,13 @@ public abstract class VGDLSprite {
             trans.translate(r.x, r.y);
             trans.scale(scale,scale);
             trans.rotate(rotation,w/2.0,h/2.0);
+
             g.drawImage(image, trans, null);
-            
+
+
+            g.setColor(arrowColor);
+            //g.drawPolygon(p);
+            g.fillPolygon(p);
         }
     }
 
@@ -820,8 +822,8 @@ public abstract class VGDLSprite {
 
 
         int numResources = resources.size();
-        double barheight = r.getHeight() / 3.5f / numResources;
-        double offset = r.getMinY() + 2*r.height / 3.0f;
+        double barheight = r.getHeight() / 6f / numResources;
+        double offset = r.getMinY() + 2*r.height / 2f;
 
         Set<Map.Entry<Integer, Integer>> entries = resources.entrySet();
         for(Map.Entry<Integer, Integer> entry : entries)
@@ -860,19 +862,19 @@ public abstract class VGDLSprite {
             maxHP = limitHealthPoints;
 
         double wiggleX = r.width * 0.1f;
-        double wiggleY = r.height * 0.1f;
+        double wiggleY = - r.height * 0.2f;
         double prop = Math.max(0,Math.min(1, healthPoints / (double) maxHP));
 
-        double barHeight = r.height-wiggleY;
-        int heightHealth = (int) (prop*barHeight);
-        int heightUnhealth = (int) ((1-prop)*barHeight);
-        int startY = (int) (r.getMinY()+wiggleY*0.5f);
+        double barWidth = r.width-wiggleX;
+        int widthHealth = (int) (prop*barWidth);
+        int widthUnhealth = (int) ((1-prop)*barWidth);
+        int startX = (int) (r.getMinX()+wiggleX*0.5f);
 
-        int barWidth = (int) (r.width * 0.1f);
-        int xOffset = (int) (r.x+wiggleX * 0.5f);
+        int barHeight = (int) (r.height * 0.2f);
+        int yOffset = (int) (r.y+wiggleY * 1f);
 
-        Rectangle filled = new Rectangle(xOffset, startY + heightUnhealth, barWidth, heightHealth);
-        Rectangle rest   = new Rectangle(xOffset, startY, barWidth, heightUnhealth);
+        Rectangle filled = new Rectangle(startX, yOffset, widthHealth, barHeight);
+        Rectangle rest   = new Rectangle(startX + widthHealth, yOffset, widthUnhealth, barHeight);
 
         gphx.setColor(Types.RED);
         gphx.fillRect(filled.x, filled.y, filled.width, filled.height);
