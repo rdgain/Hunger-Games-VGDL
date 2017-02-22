@@ -41,6 +41,7 @@ import tools.pathfinder.PathFinder;
  */
 public abstract class Game
 {
+    public ArrayList<String> nextPrompts;
 
     /**
      * z-level of sprite types (in case of overlap)
@@ -277,6 +278,7 @@ public abstract class Game
         terminations = new ArrayList<Termination>();
         historicEvents = new TreeSet<Event>();
         timeEffects = new TreeSet<TimeEffect>();
+        nextPrompts = new ArrayList<>();
 
         //Game attributes:
         size = new Dimension();
@@ -869,7 +871,7 @@ public abstract class Game
         prepareGame(players, randomSeed, humanID);
 
         //Create and initialize the panel for the graphics.
-        VGDLViewer view = new VGDLViewer(this, players[humanID]);
+        VGDLViewer view = new VGDLViewer(this, players);
         JEasyFrame frame;
         frame = new JEasyFrame(view, "Java-VGDL");
 
@@ -1270,6 +1272,7 @@ public abstract class Game
             {
                 //With no sprite, the effect is independent from particular sprites.
                 ef.execute(null,null,this);
+                if (ef.prompt != null) nextPrompts.add(ef.prompt);
                 exec = true;
 
                 //Affect score for all players:
@@ -1446,6 +1449,8 @@ public abstract class Game
                 this.counter[i] += ef.getCounterElse(i);
             }
         }
+
+        if (ef.prompt != null) nextPrompts.add(ef.prompt);
     }
 
     private void addEvent(VGDLSprite s1, VGDLSprite s2)

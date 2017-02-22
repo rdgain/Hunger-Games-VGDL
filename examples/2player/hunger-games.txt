@@ -1,7 +1,7 @@
 BasicGame no_players=2 square_size=40
 
     SpriteSet
-        land > Immovable hidden=True,True img=oryx/grass autotiling=True
+        land > Immovable hidden=True img=oryx/grass autotiling=True
 
         #--------------------------fog-of-war-stuff------------------------------------------
 
@@ -12,12 +12,12 @@ BasicGame no_players=2 square_size=40
             fog > invisible=False hidden=False   #everyone sees fog
 
         removeFog >
-            removeFogA > color=RED invisible=True hidden=True,True
+            removeFogA > color=RED invisible=True hidden=True
                 rmFogA > Spreader stype=rmA1 singleton=True
                 rmA1 > Spreader stype=rmA2
                 rmA2 > Flicker
 
-            removeFogB > color=BLUE invisible=True hidden=True,True
+            removeFogB > color=BLUE invisible=True hidden=True
                 rmFogB > Spreader stype=rmB1 singleton=True
                 rmB1 > Spreader stype=rmB2
                 rmB2 > Flicker
@@ -49,12 +49,12 @@ BasicGame no_players=2 square_size=40
 
         #-----------------------------avatar-stuff-------------------------------------------
 
-        avatar > ShootAvatar speed=1 healthPoints=200 limitHealthPoints=200
+        avatar > ShootAvatar speed=1 healthPoints=200 limitHealthPoints=200 frameRate=8
             avatarA > img=oryx/archer1 color=RED  #always visible to himself
-                avVisA > hidden=False,False invisible=False stype=shootVisA,hitAvis ammo=arrows     #visible to B too
+                avVisA > hidden=False invisible=False stype=shootVisA,hitAvis ammo=arrows     #visible to B too
                 avHidA > hidden=False,True invisible=False,True stype=shootHidA,hitAhid ammo=arrows #hidden from B
-            avatarB > img=oryx/archer1 color=BLUE  #always visible to himself
-                avVisB > hidden=False,False invisible=False stype=shootVisB,hitBvis ammo=arrows     #visible to A too
+            avatarB > img=oryx/archer2 color=BLUE  #always visible to himself
+                avVisB > hidden=False invisible=False stype=shootVisB,hitBvis ammo=arrows     #visible to A too
                 avHidB > hidden=True,False invisible=True,False stype=shootHidB,hitBhid ammo=arrows #hidden from A
 
         hit > Flicker img=oryx/staff1 shrinkfactor=0.5
@@ -186,15 +186,15 @@ BasicGame no_players=2 square_size=40
         avatarB food > addHealthPointsToMax value=50 scoreChange=0,25
         food avatar > killSprite
 
-        avatarA ar > changeResource resource=arrows value=5
-        avatarB ar > changeResource resource=arrows value=5
+        avatarA ar > changeResource resource=arrows value=5 scoreChange=5,0
+        avatarB ar > changeResource resource=arrows value=5 scoreChange=0,5
         ar avatar > killSprite
 
         #-------killing----------
-        avatarA hitB > subtractHealthPoints value=15 scoreChange=15,0
-        avatarA shootB > subtractHealthPoints value=25 scoreChange=25,0
-        avatarB hitA > subtractHealthPoints value=15 scoreChange=0,15
-        avatarB shootA > subtractHealthPoints value=25 scoreChange=0,25
+        avatarA hitB > subtractHealthPoints value=5 scoreChange=5,-2
+        avatarA shootB > subtractHealthPoints value=10 scoreChange=10,-5
+        avatarB hitA > subtractHealthPoints value=5 scoreChange=-2,5
+        avatarB shootA > subtractHealthPoints value=10 scoreChange=-5,10
 
         flying hit shoot > spawn stype=flyfood
         flying hitA shootA > killBoth scoreChange=10,0

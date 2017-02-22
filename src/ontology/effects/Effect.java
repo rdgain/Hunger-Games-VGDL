@@ -16,6 +16,8 @@ import core.game.Game;
  */
 public abstract class Effect{
 
+    public String prompt;
+
     //Indicates if this effect kills any sprite
     public boolean is_kill_effect = false;
 

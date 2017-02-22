@@ -626,15 +626,27 @@ public abstract class VGDLSprite {
     public void draw(Graphics2D gphx, Game game) {
         String[] invis = invisible.split(",");
 
-        boolean displayP1 = game.humanPlayer[0] && Boolean.parseBoolean(invis[0]);
-        boolean displayP2;
+        boolean invis0 = Boolean.parseBoolean(invis[0]);
+        boolean invis1;
 
-        if (game.humanPlayer[1] && invis.length == 1) {
-            displayP2 = game.humanPlayer[1] && Boolean.parseBoolean(invis[0]);
-        } else
-            displayP2 = game.humanPlayer[1] && Boolean.parseBoolean(invis[1]);
+        if (invis.length > 1)
+            invis1 = Boolean.parseBoolean(invis[1]);
+        else invis1 = invis0;
 
-        if(!(displayP1 || displayP2) && !disabled)
+        boolean displayP1 = game.humanPlayer[0] && !invis0;
+        boolean displayP2 = game.humanPlayer[1] && !invis1;
+
+        boolean show;
+        if (game.humanPlayer[0] && game.humanPlayer[1] || !game.humanPlayer[0] && !game.humanPlayer[1])
+            if (invis0 == invis1) show = !invis0;
+            else
+                if (color == Types.DARKGRAY) show = false;
+                else
+                    show = !invis0 || !invis1;
+        else
+            show = displayP1 || displayP2;
+
+        if(show && !disabled)
         {
             Rectangle r = new Rectangle(rect);
 

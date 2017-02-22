@@ -42,18 +42,25 @@ public class VGDLViewer extends JComponent
     /**
      * Player of the game
      */
-    public Player player;
+    public Player[] players;
+
+    int promptDelay = 5; // number of frames the prompt will be displayed
+    int delayCounter;
+
+    ArrayList<String> prompts;
 
 
     /**
      * Creates the viewer for the game.
      * @param game game to be displayed
      */
-    public VGDLViewer(Game game, Player player)
+    public VGDLViewer(Game game, Player[] players)
     {
         this.game = game;
         this.size = game.getScreenSize();
-        this.player = player;
+        this.players = players;
+        delayCounter = 0;
+        prompts = new ArrayList<>();
     }
 
     /**
@@ -91,7 +98,24 @@ public class VGDLViewer extends JComponent
         }catch(Exception e) {}
 
         g.setColor(Types.BLACK);
-        player.draw(g);
+        for (Player player : players)
+            player.draw(g);
+
+        // Draw effect prompts
+        if (delayCounter == 0) {
+            prompts.addAll(game.nextPrompts);
+            game.nextPrompts.clear();
+        } else if (delayCounter < promptDelay) {
+            for (String s : prompts) {
+                int x = 0; // midde of screen, but depends on number of prompts
+                int y = 0;
+                g.drawString(s, x, y);
+            }
+        } else {
+            delayCounter = 0;
+            prompts.clear();
+        }
+
     }
 
 
