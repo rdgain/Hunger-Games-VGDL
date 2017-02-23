@@ -6,9 +6,14 @@ This is the framework for the General Video Game AI Competition - http://www.gvg
 
 Google group - https://groups.google.com/forum/#!forum/the-general-video-game-competition
 
+Github repository - https://github.com/EssexUniversityMCTS/gvgai
+
 =================
 Hunger Games & AI
 =================
+
+Github repository - https://github.com/rdgain/Hunger-Games-VGDL
+Gameplay video - 
 
 To run the game: 
 * Open .java class src/TestMultiPlayer
