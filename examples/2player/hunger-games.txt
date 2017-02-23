@@ -48,7 +48,7 @@ BasicGame no_players=2 square_size=40
         food > Resource color=BLUE shrinkfactor=0.5 img=oryx/mushroom1
 
         animalSpawn > SpawnPoint stype=bearHid prob=0.0008 invisible=True hidden=True
-        flyingSpawn > SpawnPoint stype=butHid prob=0.002 invisible=True hidden=True
+        flyingSpawn > SpawnPoint stype=butHid prob=0.001 invisible=True hidden=True
         arrowSpawn > SpawnPoint invisible=True hidden=True prob=0.001 stype=arrowsHid
         wolfSpawnA > SpawnPoint total=3 stype=wolfHidA invisible=True hidden=True
         wolfSpawnB > SpawnPoint total=3 stype=wolfHidB invisible=True hidden=True
@@ -86,7 +86,7 @@ BasicGame no_players=2 square_size=40
             avatarA > img=oryx/archer1 color=RED  #always visible to himself
                 avVisA > hidden=False invisible=False stype=shootVisA,hitAvis ammo=arrows     #visible to B too
                 avHidA > hidden=False,True invisible=False,True stype=shootHidA,hitAhid ammo=arrows #hidden from B
-            avatarB > img=oryx/archer2 color=BLUE  #always visible to himself
+            avatarB > img=oryx/archer2 color=YELLOW  #always visible to himself
                 avVisB > hidden=False invisible=False stype=shootVisB,hitBvis ammo=arrows     #visible to A too
                 avHidB > hidden=True,False invisible=True,False stype=shootHidB,hitBhid ammo=arrows #hidden from A
 
@@ -191,16 +191,16 @@ BasicGame no_players=2 square_size=40
         avatarB wall tree > stepBack stype=removeFogB
 
         #------collecting--------
-        avatarA berry > addHealthPointsToMax value=5 scoreChange=1,0
-        avatarB berry > addHealthPointsToMax value=5 scoreChange=0,1
+        avatarA berry > addHealthPointsToMax value=3 scoreChange=1,0
+        avatarB berry > addHealthPointsToMax value=3 scoreChange=0,1
         berry avatar > killSprite
 
-        avatarA flyfood > addHealthPointsToMax value=20 scoreChange=2,0
-        avatarB flyfood > addHealthPointsToMax value=20 scoreChange=0,2
+        avatarA flyfood > addHealthPointsToMax value=15 scoreChange=2,0
+        avatarB flyfood > addHealthPointsToMax value=15 scoreChange=0,2
         flyfood avatar > killSprite
 
-        avatarA food > addHealthPointsToMax value=50 scoreChange=3,0
-        avatarB food > addHealthPointsToMax value=50 scoreChange=0,3
+        avatarA food > addHealthPointsToMax value=30 scoreChange=3,0
+        avatarB food > addHealthPointsToMax value=30 scoreChange=0,3
         food avatar > killSprite
 
         avatarA ar > changeResource resource=arrows value=5 scoreChange=5,0
@@ -225,8 +225,8 @@ BasicGame no_players=2 square_size=40
         wolf hitA shootA > killBoth scoreChange=15,0
         wolf hitB shootB > killBoth scoreChange=0,15
 
-        avatarA wolf > subtractHealthPoints value=2 scoreChange=-1,0
-        avatarB wolf > subtractHealthPoints value=2 scoreChange=0,-1
+        avatarA wolf > subtractHealthPoints value=2 scoreChange=-1,0 prompt=Woof!
+        avatarB wolf > subtractHealthPoints value=2 scoreChange=0,-1 prompt=Woof!
         wolf EOS wall avatar wolf > stepBack
 
         #-------other------------

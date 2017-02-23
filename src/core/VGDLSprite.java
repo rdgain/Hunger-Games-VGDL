@@ -876,7 +876,7 @@ public abstract class VGDLSprite {
         Rectangle filled = new Rectangle(startX, yOffset, widthHealth, barHeight);
         Rectangle rest   = new Rectangle(startX + widthHealth, yOffset, widthUnhealth, barHeight);
 
-        gphx.setColor(Types.RED);
+        gphx.setColor(this.color);
         gphx.fillRect(filled.x, filled.y, filled.width, filled.height);
         gphx.setColor(Types.BLACK);
         gphx.fillRect(rest.x, rest.y, rest.width, rest.height);

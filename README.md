@@ -34,10 +34,10 @@ Gameplay video -
 	* Default weapon: stick. But there are arrows that can be collected in the forest that give you a limited supply of arrows to shoot (ranged weapon).
 	* It takes only one hit to kill animals, but several to kill the opponent.
 	* In order to increase health:
-		- Eat berries. They randomly spawn on the berry bushes in the forest. They give 5 health points.
-		- Kill butterflies and eat the food they drop. They give 20 healath points.
-		- Kill bears and eat the food they drop. They give 50 health points.
-		- Kill wolves and eat the food they drop. They give 50 health points.
+		- Eat berries. They randomly spawn on the berry bushes in the forest. They give 3 health points.
+		- Kill butterflies and eat the food they drop. They give 15 health points.
+		- Kill bears and eat the food they drop. They give 30 health points.
+		- Kill wolves and eat the food they drop. They give 30 health points.
 	* Be careful when killing animals, the food dropped is visible to all players, acting like a signal for the enemy!
 
 ## Game techincal implementation:
