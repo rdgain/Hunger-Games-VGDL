@@ -4,6 +4,7 @@ import controllers.multiPlayer.RHEA.sampleOLMCTS.SingleTreeNode;
 import controllers.multiPlayer.heuristics.SimpleStateHeuristic;
 import controllers.multiPlayer.heuristics.StateHeuristicMulti;
 import controllers.multiPlayer.heuristics.WinScoreHeuristic;
+import core.game.Observation;
 import core.game.StateObservationMulti;
 import core.player.AbstractMultiPlayer;
 import ontology.Types;
@@ -16,10 +17,10 @@ import java.util.*;
 public class Agent extends AbstractMultiPlayer {
 
     // variable
-    private int POPULATION_SIZE = 5;
-    private int SIMULATION_DEPTH = 10;
+    private int POPULATION_SIZE = 3;
+    private int SIMULATION_DEPTH = 8;
     private int CROSSOVER_TYPE = UNIFORM_CROSS;
-    private double DISCOUNT = 1; //0.99;
+    private double DISCOUNT = 0.99;
 
     // set
     private boolean REEVALUATE = false;
@@ -47,11 +48,12 @@ public class Agent extends AbstractMultiPlayer {
     private boolean keepIterating = true;
     private long remaining;
 
-    Vector2d lastDiffPos;
+    Vector2d lastDiffPos, targetPos;
     int ATTACK_DIST = 5;
     int RESOURCE_DIST = 5;
     double ATTACK_BREAK = 0.4; // chance to recklessly attack enemy, the bigger the more aggressive
 
+    boolean changed;
 
     //Multiplayer game parameters
     int playerID, opponentID, noPlayers;
@@ -72,8 +74,10 @@ public class Agent extends AbstractMultiPlayer {
         noPlayers = stateObs.getNoPlayers();
         opponentID = (playerID+1)%noPlayers;
         lastDiffPos = stateObs.getAvatarPosition(playerID);
+        targetPos = lastDiffPos;
         ATTACK_DIST *= stateObs.getBlockSize();
         RESOURCE_DIST *= stateObs.getBlockSize();
+        changed = false;
 
         // INITIALISE POPULATION
         init_pop(stateObs);
@@ -172,14 +176,9 @@ public class Agent extends AbstractMultiPlayer {
 
         //decide state we're in
         Vector2d thispos = state.getAvatarPosition(playerID);
-        boolean changed = false;
-        if (!thispos.equals(lastDiffPos)) {
-            lastDiffPos = thispos;
-            changed = true;
-        }
 
-        int fsm = 0;
-        if (isOpponentInRange(state)) {
+        int fsm;
+        if (isOpponentInRange(state) || isEnemyInRange(state)) {
             if (canFight(state)) {
                 fsm = 2;
             } else {
@@ -187,6 +186,20 @@ public class Agent extends AbstractMultiPlayer {
             }
         } else if (isResourceNear(state)) {
             fsm = 1;
+        } else {
+            fsm = 0;
+            if (!thispos.equals(lastDiffPos)) {
+                lastDiffPos = thispos;
+                changed = true;
+            }
+            ArrayList<Observation>[][] obsGrid = state.getObservationGrid();
+            int blockSize = state.getBlockSize();
+            int x = (int)thispos.x/blockSize;
+            int y = (int)thispos.y/blockSize;
+            int height = obsGrid.length;
+            int width = obsGrid[0].length;
+            targetPos = new Vector2d ((width-x)*blockSize,(height-y)*blockSize);
+            heuristic.setTargetPos(targetPos);
         }
 
 //        System.out.println("State: " + fsm);
@@ -220,7 +233,8 @@ public class Agent extends AbstractMultiPlayer {
             }
         }
 
-        heuristic.setDistMoved(thispos.dist(st.getAvatarPosition(playerID))/state.getBlockSize());
+        if (fsm == 0)
+            heuristic.setDistMoved(thispos.dist(st.getAvatarPosition(playerID))/state.getBlockSize());
 
         StateObservationMulti first = st.copy();
         double value = heuristic.evaluateState(first, playerID, changed, fsm);
@@ -240,6 +254,23 @@ public class Agent extends AbstractMultiPlayer {
 
     boolean isOpponentInRange(StateObservationMulti state) {
         return state.getAvatarPosition(playerID).dist(state.getAvatarPosition(opponentID)) < ATTACK_DIST;
+    }
+
+    boolean isEnemyInRange(StateObservationMulti state) {
+        double minDistanceNPC = Double.POSITIVE_INFINITY;
+        ArrayList<Observation>[] npcPositions = state.getNPCPositions(state.getAvatarPosition(playerID));
+        if (npcPositions != null) {
+            for (ArrayList<Observation> npcs : npcPositions) {
+                if(npcs.size() > 0)
+                {
+                    for (Observation o : npcs) {
+                        if (o.itype == 54)
+                            minDistanceNPC = o.sqDist;
+                    }
+                }
+            }
+        }
+        return minDistanceNPC < ATTACK_DIST;
     }
 
     boolean canFight(StateObservationMulti state) {

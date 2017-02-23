@@ -23,7 +23,7 @@ public class TestMultiPlayer {
 
         // Set here the controllers used in the games (need 2 separated by
         // space).
-        String controllers = sampleOLMCTSController + " " + sampleOLMCTSController;
+        String controllers = humanController  + " " + macroRHEA;
         // String controllers = sampleOLMCTSController + " " +
         // sampleOLMCTSController;
 

@@ -2,6 +2,7 @@ package controllers.multiPlayer.heuristics;
 
 import core.game.StateObservationMulti;
 import ontology.Types;
+import tools.Vector2d;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,6 +44,11 @@ public class WinScoreHeuristic extends StateHeuristicMulti {
 
     @Override
     public void setFirstState(StateObservationMulti state) {
+
+    }
+
+    @Override
+    public void setTargetPos(Vector2d pos) {
 
     }
 

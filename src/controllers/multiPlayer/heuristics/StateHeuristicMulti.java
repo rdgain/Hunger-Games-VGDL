@@ -1,6 +1,7 @@
 package controllers.multiPlayer.heuristics;
 
 import core.game.StateObservationMulti;
+import tools.Vector2d;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,4 +15,5 @@ public abstract class StateHeuristicMulti {
     abstract public double evaluateState(StateObservationMulti stateObs, int playerID, boolean changed, int state);
     abstract public void setDistMoved(double distMoved);
     abstract public void setFirstState(StateObservationMulti state);
+    abstract public void setTargetPos(Vector2d pos);
 }
