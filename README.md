@@ -52,6 +52,7 @@ Game techincal implementation:
 	- If both players visit an area, then the 'fog' turns to an invisible object which signals that both players can see the sprites at that location.
 	- Moving objects adjust themselves when they change fog type areas, so they can become visible, then hidden again.
 * Each interaction affecting the health points, as well as revealing the fog, affects the game scoring system as well (as guidance for general agents and human player feedback).
+* Game map generated using simplex noise for interesting area layout and manually adjusted to fit the purpose and include all game objects as needed.
 
 AI description:
 * Basic Rolling Horizon Evolutionary Algorithm, using sequences of in-game actions encoded as individuals, which are then evolved through uniform crossover (tournament of 2 used for selection), uniformly at random mutation of 1 gene and promoted through elitism of 1. A population in the final configuration consists of 5 individuals of length 8 (8 sequential in-game actions).
