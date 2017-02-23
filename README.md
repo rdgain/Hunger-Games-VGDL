@@ -13,7 +13,8 @@ Hunger Games & AI
 =================
 
 Github repository - https://github.com/rdgain/Hunger-Games-VGDL
-Gameplay video - 
+Gameplay video 1 (AI vs AI) - https://youtu.be/jON8Ie8J47w
+Gameplay video 2 (human vs AI) - https://youtu.be/ndbb37ShzXw
 
 ## To run the game: 
 	* Open class TestMultiPlayer.java

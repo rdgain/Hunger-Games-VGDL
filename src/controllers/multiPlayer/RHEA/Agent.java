@@ -26,7 +26,7 @@ public class Agent extends AbstractMultiPlayer {
     private int POPULATION_SIZE = 5;
     public static int SIMULATION_DEPTH = 8;
     private int INIT_TYPE = Agent.INIT_RANDOM;
-    public static int MAX_FM_CALLS = 320;
+    public static int MAX_FM_CALLS = 300;
     private int HEURISTIC_TYPE = Agent.HEURISTIC_WINSCORE;
     private int MACRO_ACTION_LENGTH = 1;
 
