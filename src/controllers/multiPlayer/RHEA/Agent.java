@@ -23,44 +23,36 @@ public class Agent extends AbstractMultiPlayer {
      * Set in Player class instead for jar functionality
      */
 
-    protected int POPULATION_SIZE = 5; //try 1,2,5
-    public static int SIMULATION_DEPTH = 8; //try 6,8,10
-    protected int INIT_TYPE = Agent.INIT_RANDOM;
-    protected int BUDGET_TYPE = Agent.HALF_BUDGET;
+    private int POPULATION_SIZE = 5;
+    public static int SIMULATION_DEPTH = 8;
+    private int INIT_TYPE = Agent.INIT_RANDOM;
     public static int MAX_FM_CALLS = 350;
-    protected int HEURISTIC_TYPE = Agent.HEURISTIC_WINSCORE;
-    protected int MACRO_ACTION_LENGTH = 1;
+    private int HEURISTIC_TYPE = Agent.HEURISTIC_WINSCORE;
+    private int MACRO_ACTION_LENGTH = 1;
 
     private int CROSSOVER_TYPE = UNIFORM_CROSS; // 0 - 1point; 1 - uniform
-
-    private boolean CIRCULAR = false;
 
     // set
     private boolean REEVALUATE = false;
     private boolean REPLACE = false;
     private int MUTATION = 1;
     private int TOURNAMENT_SIZE = 2;
-    private int RESAMPLE = 2; //try 1,2,3
     private int ELITISM = 1;
     private double DISCOUNT = 1; //0.99;
 
     // constants
-    private final long BREAK_MS = 5;
-    private final int MAX_ACTIONS = 6;
     public static final double epsilon = 1e-6;
 
-    public static final int POINT1_CROSS = 0;
-    public static final int UNIFORM_CROSS = 1;
-    public static final int INIT_RANDOM = 0;
-    public static final int INIT_ONESTEP = 1;
-    public static final int INIT_MCTS = 2;
+    static final int POINT1_CROSS = 0;
+    static final int UNIFORM_CROSS = 1;
+    private static final int INIT_RANDOM = 0;
+    private static final int INIT_ONESTEP = 1;
+    private static final int INIT_MCTS = 2;
 
-    public static final int HEURISTIC_WINSCORE = 0;
+    static final int HEURISTIC_WINSCORE = 0;
     public static final int HEURISTIC_SIMPLESTATE = 1;
 
-    public static final int FULL_BUDGET = 0;
-    public static final int HALF_BUDGET = 1;
-    public static int MCTS_BUDGET;
+    private static int MCTS_BUDGET;
     public static int ONESTEP_BUDGET;
 
     private Individual[] population, nextPop;
@@ -69,19 +61,15 @@ public class Agent extends AbstractMultiPlayer {
     private ElapsedCpuTimer timer;
 
     private HashMap<Integer, Types.ACTIONS>[] action_mapping;
-    private HashMap<Types.ACTIONS, Integer> action_mapping_r;
     private Random randomGenerator;
 
     private StateHeuristicMulti heuristic;
 
     // number of evaluations
-    private int MAX_ITERS;
     private int numEvals = 0;
     private int numCalls = 0;
     private int numPop = 0;
 
-    private Types.ACTIONS[] currentBest;
-    //    private double avgConvergence = 0;
     private double acumTimeTakenEval, avgTimeTaken;
 
 
@@ -91,22 +79,15 @@ public class Agent extends AbstractMultiPlayer {
     private int m_lastMacroAction;
     private boolean m_throwPop;
 
+    private Vector2d lastDiffPos, targetPos;
+    private int ATTACK_DIST = 5;
+    private int RESOURCE_DIST = 5;
+    private double ATTACK_BREAK = 0.5; // chance to recklessly attack enemy, the bigger the more aggressive
 
-    // Drawing.
-//    protected ArrayList<Observation> grid[][];
-    protected int block_size; // itype;
-    ArrayList<Vector2d> positions, newpos;
-    Vector2d pos;
-
-    Vector2d lastDiffPos, targetPos;
-    int ATTACK_DIST = 5;
-    int RESOURCE_DIST = 5;
-    double ATTACK_BREAK = 0.5; // chance to recklessly attack enemy, the bigger the more aggressive
-
-    boolean changed;
+    private boolean changed;
 
 
-    int playerID, opponentID, noPlayers;
+    private int playerID, opponentID, noPlayers;
 
     /**
      * Public constructor with state observation and time due.
@@ -121,7 +102,6 @@ public class Agent extends AbstractMultiPlayer {
         opponentID = (playerID+1)%noPlayers;
         heuristic = new SimpleStateHeuristic(stateObs);
         this.timer = elapsedTimer;
-        currentBest = new Types.ACTIONS[MAX_ITERS];
 
         lastDiffPos = stateObs.getAvatarPosition(playerID);
         targetPos = lastDiffPos;
@@ -138,37 +118,16 @@ public class Agent extends AbstractMultiPlayer {
          */
 
         init_pop(stateObs, INIT_TYPE);
-
-        /*
-         * Drawing
-         */
-
-//        grid = stateObs.getObservationGrid();
-        block_size = stateObs.getBlockSize();
-//        itype = stateObs.getAvatarType(id);
-        positions = new ArrayList<>();
-        newpos = new ArrayList<>();
     }
 
     public Types.ACTIONS act(StateObservationMulti stateObs, ElapsedCpuTimer elapsedTimer) {
-//        grid = stateObs.getObservationGrid();
-//        itype = stateObs.getAvatarType(id);
 
-        positions = new ArrayList<>();
-
-        MAX_ITERS = MAX_FM_CALLS;
         MCTS_BUDGET = MAX_FM_CALLS / 2;
 
         numCalls = 0;
         this.timer = elapsedTimer;
         avgTimeTaken = 0;
-//        double acumTimeTaken = 0;
-//        long remaining = timer.remainingTimeMillis();
         acumTimeTakenEval = 0;
-
-
-        // Check if number of available actions changed, if so, reinitialise pop
-
 
         /*
          * RUN SIMULATIONS
@@ -180,61 +139,14 @@ public class Agent extends AbstractMultiPlayer {
             nextAction = runMacro(stateObs, elapsedTimer);
         }
         else {
-            if (stateObs.getAvailableActions(playerID).size() != N_ACTIONS[playerID] || !CIRCULAR)
-                init_pop(stateObs,INIT_TYPE);
+            init_pop(stateObs,INIT_TYPE);
             run(stateObs, elapsedTimer);
             nextAction = get_best_action(population);
-
         }
 
         /*
          * RETURN ACTION
          */
-
-
-        if (CIRCULAR) {
-            // Remove first action of all individuals and add a new random one at the end
-            for (int i = 0; i < POPULATION_SIZE; i++) {
-                for (int j = 0; j < SIMULATION_DEPTH - 1; j++) {
-                    int next = population[i].actions[j+1];
-                    population[i].actions[j] = (next < N_ACTIONS[playerID]) ? next : randomGenerator.nextInt(N_ACTIONS[playerID]);
-                }
-                population[i].actions[SIMULATION_DEPTH - 1] = randomGenerator.nextInt(N_ACTIONS[playerID]);
-            }
-
-
-        }
-
-        // check convergence
-//        int found = -1;
-//        int i;
-//        boolean ok;
-//        for (i = 0; i < MAX_ITERS; i++) {
-//            if (currentBest[i] != null && currentBest[i].equals(best)) {
-//                ok = true;
-//                for (int j = i + 1; j < MAX_ITERS; j++) {
-//                    if (!currentBest[i].equals(best)) {
-//                        ok = false; break;
-//                    }
-//                }
-//                if (ok) {
-//                    found = i; break;
-//                }
-//            } else if (currentBest[i] == null) break;
-//        }
-//
-//        if (found == -1) found = i;
-//
-//        avgConvergence = found;
-//        avgTime = acumTimeTakenEval / numEvals;
-
-//        System.out.println(found);
-//        System.out.println(avgTime);
-//        System.out.println(numCalls);
-//        System.out.println(population[0].value);
-
-//        if (node.children[bestAction] != null)
-//            System.out.println(String.format("%.2f",node.children[bestAction].value));
 
         return action_mapping[playerID].get(nextAction);
     }
@@ -288,27 +200,13 @@ public class Agent extends AbstractMultiPlayer {
 
 
     private void run(StateObservationMulti stateObs, ElapsedCpuTimer elapsedTimer) {
-        // if full budget to be used for evolution, reset everything after initialisation
 
         if (!stateObs.isGameOver()) {
 
-            if (BUDGET_TYPE == FULL_BUDGET) {
-                this.timer = elapsedTimer;
-                numCalls = 0;
-                avgTimeTaken = 0;
-//        double acumTimeTaken = 0;
-//        long remaining = timer.remainingTimeMillis();
-                acumTimeTakenEval = 0;
-            }
-
-
             numEvals = 0;
             numPop = 0;
-            currentBest = new Types.ACTIONS[MAX_ITERS];
             boolean ok = true;
-//      if (remaining > 2*avgTimeTaken && remaining > 5*BREAK_MS) {
             do {
-//                ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
 
                 numPop++;
 
@@ -327,13 +225,6 @@ public class Agent extends AbstractMultiPlayer {
                         nextPop[0] = newind.copy();
                     }
 
-                    /*
-                      Get current best action
-                     */
-
-//                currentBest[numEvals - 1] = get_best_action(nextPop);
-
-
                 } else {
                     for (int i = ELITISM; i < POPULATION_SIZE; i++) {
                         if ((numCalls + SIMULATION_DEPTH) < MAX_FM_CALLS) {
@@ -343,16 +234,8 @@ public class Agent extends AbstractMultiPlayer {
 
                             // evaluate new individual, insert into population
                             add_individual(newind, nextPop, i, stateObs, avgTimeTaken);
-//                            remaining = timer.remainingTimeMillis();
-
-                            /*
-                             * Get current best action
-                             */
-
-//                            if (numIters > MAX_ITERS) break;
 
                             Arrays.sort(nextPop);
-//                        currentBest[numEvals - 1] = get_best_action(nextPop);
 
                         } else {
                             ok = false;
@@ -363,19 +246,12 @@ public class Agent extends AbstractMultiPlayer {
 
                 population = nextPop.clone();
 
-//                acumTimeTaken += (elapsedTimerIteration.elapsedMillis());
-//                avgTimeTaken = acumTimeTaken / numIters;
-
-//                currentBest[numPop - 1] = get_best_action();
-
-//            } while (remaining > 2*avgTimeTaken && remaining > BREAK_MS);
-//            } while (numIters < MAX_ITERS);
             } while (ok && ((numCalls + SIMULATION_DEPTH) < MAX_FM_CALLS));
 //        }
         }
     }
 
-    public void prepareGameCopy(StateObservationMulti stateObs)
+    private void prepareGameCopy(StateObservationMulti stateObs)
     {
         if(m_lastMacroAction != -1)
         {
@@ -408,12 +284,14 @@ public class Agent extends AbstractMultiPlayer {
         Vector2d thispos = state.getAvatarPosition(playerID);
 
         int fsm;
-        if (isOpponentInRange(state) || isEnemyInRange(state)) {
+        if (isOpponentInRange(state)) {
             if (canFight(state)) {
                 fsm = 2;
             } else {
                 fsm = 3;
             }
+        } else if  (isEnemyInRange(state)) {
+            fsm = 2;
         } else if (isResourceNear(state)) {
             fsm = 1;
         } else {
@@ -441,12 +319,7 @@ public class Agent extends AbstractMultiPlayer {
         int i;
         for (i = 0; i < SIMULATION_DEPTH; i++) {
             if (! st.isGameOver()) {
-//                ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
                 advanceMacro(st, individual.actions[i]);
-//                st.advance(action_mapping.get(individual.actions[i]));
-//                numCalls++;
-//                double r = remaining - elapsedTimerIteration.remainingTimeMillis();
-//                if (r < avg || r < BREAK_MS) break;
                 if (numCalls + (SIMULATION_DEPTH - i) > MAX_FM_CALLS) break;
             } else {
                 break;
@@ -456,36 +329,25 @@ public class Agent extends AbstractMultiPlayer {
         if (fsm == 0)
             heuristic.setDistMoved(thispos.dist(st.getAvatarPosition(playerID))/state.getBlockSize());
 
-        /*
-         * ROLLOUTS
-         */
-
         StateObservationMulti first = st.copy();
-        double value = 0;
-        value = heuristic.evaluateState(first, playerID, changed, fsm);
-
+        double value = heuristic.evaluateState(first, playerID, changed, fsm);
 
         /*
          * Apply discount factor
          */
         value *= Math.pow(DISCOUNT,i);
-
         individual.value = value;
-//        individual.lastValue = heuristic.evaluateState(last, playerID) * Math.pow(DISCOUNT, i-1);
-
-
         acumTimeTakenEval += (elapsedTimerIterationEval.elapsedMillis());
-
 
         return value;
     }
 
 
-    boolean isOpponentInRange(StateObservationMulti state) {
+    private boolean isOpponentInRange(StateObservationMulti state) {
         return state.getAvatarPosition(playerID).dist(state.getAvatarPosition(opponentID)) < ATTACK_DIST;
     }
 
-    boolean isEnemyInRange(StateObservationMulti state) {
+    private boolean isEnemyInRange(StateObservationMulti state) {
         double minDistanceNPC = Double.POSITIVE_INFINITY;
         ArrayList<Observation>[] npcPositions = state.getNPCPositions(state.getAvatarPosition(playerID));
         if (npcPositions != null) {
@@ -502,27 +364,20 @@ public class Agent extends AbstractMultiPlayer {
         return minDistanceNPC < ATTACK_DIST;
     }
 
-    boolean canFight(StateObservationMulti state) {
+    private boolean canFight(StateObservationMulti state) {
         return randomGenerator.nextDouble() <= ATTACK_BREAK || state.getAvatarHealthPoints(playerID) > state.getAvatarHealthPoints(opponentID);
     }
 
-    boolean isResourceNear(StateObservationMulti state) {
+    private boolean isResourceNear(StateObservationMulti state) {
         try {
             return state.getResourcesPositions(state.getAvatarPosition(playerID))[0].get(0).sqDist < RESOURCE_DIST;
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
         return false;
     }
 
     private Individual crossover() {
         Individual[] tournament = new Individual[TOURNAMENT_SIZE];
         if (POPULATION_SIZE > 2) {
-//            tournament[0] = population[randomGenerator.nextInt(POPULATION_SIZE)];
-//            for (int i = 1; i < TOURNAMENT_SIZE; i++) {
-//                do {
-//                    tournament[i] = population[randomGenerator.nextInt(POPULATION_SIZE - 1) + 1]; //don't include the first one in tournament
-//                    System.out.println("here");
-//                } while (tournament[i].equals(tournament[i - 1]));
-//            }
             ArrayList<Individual> list = new ArrayList<>();
             list.addAll(Arrays.asList(population).subList(1, POPULATION_SIZE));
             Collections.shuffle(list);
@@ -563,7 +418,7 @@ public class Agent extends AbstractMultiPlayer {
         N_ACTIONS[playerID] = stateObs.getAvailableActions(playerID).size() + 1;
         N_ACTIONS[opponentID] = stateObs.getAvailableActions(opponentID).size() + 1;
         action_mapping = new HashMap[noPlayers];
-        action_mapping_r = new HashMap<>();
+        HashMap<Types.ACTIONS, Integer> action_mapping_r = new HashMap<>();
         int k = 0;
         for (int i = 0; i < noPlayers; i++) {
             action_mapping[i] = new HashMap<>();
@@ -636,7 +491,7 @@ public class Agent extends AbstractMultiPlayer {
     }
 
 
-    public void advanceMacro(StateObservationMulti state, int action)
+    private void advanceMacro(StateObservationMulti state, int action)
     {
         int i = 0;
         boolean end = false;
@@ -645,11 +500,6 @@ public class Agent extends AbstractMultiPlayer {
 
         while(!end)
         {
-//            if (viewer != null) {
-//                pos = state.getAvatarPosition();
-//                positions.add(pos);
-//            }
-
             Types.ACTIONS[] acts = new Types.ACTIONS[noPlayers];
             acts[playerID] = act;
             acts[opponentID] = opponentModel();
@@ -661,54 +511,7 @@ public class Agent extends AbstractMultiPlayer {
 
     }
 
-    public Types.ACTIONS opponentModel() {
+    private Types.ACTIONS opponentModel() {
         return action_mapping[opponentID].get(randomGenerator.nextInt(N_ACTIONS[opponentID]));
-    }
-
-
-    public void draw(Graphics2D g) {
-
-        /**
-         * Draw exploration
-         */
-
-//        g.setColor(new Color(0,0,0,5));
-//
-        //g.fillRect(0, 0, grid.length * block_size, grid[0].length * block_size);
-//
-//        for(int j = 0; j < grid[0].length; ++j) {
-//            for(int i = 0; i < grid.length; ++i) {
-//                for (Observation o : grid[i][j]) {
-//                    if (o.itype == itype) {
-//                        positions.add(o.position);
-//                    }
-//                }
-//            }
-//        }
-//
-//        for (Vector2d p : positions) {
-//            g.fillRect((int)p.x,(int)p.y, block_size, block_size);
-//        }
-
-        /**
-         * Draw thinking
-         */
-
-//        g.setColor(new Color(255,255,255,25));
-//        newpos.clear();
-//        newpos.addAll(positions);
-//        if (!newpos.isEmpty()) {
-//            for (Vector2d pos : newpos) {
-//                g.fillOval((int) pos.x + block_size / 2, (int) pos.y + block_size / 2, block_size / 2, block_size / 2);
-//            }
-//        }
-
-    }
-
-
-
-    public void result(StateObservationMulti stateObs, ElapsedCpuTimer elapsedCpuTimer)
-    {
-//        System.out.println(avgConvergence / stateObs.getGameTick());
     }
 }

@@ -178,12 +178,14 @@ public class Agent extends AbstractMultiPlayer {
         Vector2d thispos = state.getAvatarPosition(playerID);
 
         int fsm;
-        if (isOpponentInRange(state) || isEnemyInRange(state)) {
+        if (isOpponentInRange(state)) {
             if (canFight(state)) {
                 fsm = 2;
             } else {
                 fsm = 3;
             }
+        } else if  (isEnemyInRange(state)) {
+            fsm = 2;
         } else if (isResourceNear(state)) {
             fsm = 1;
         } else {

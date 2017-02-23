@@ -19,20 +19,15 @@ public class TestMultiPlayer {
         String sampleRHEAController = "controllers.multiPlayer.sampleRHEA.Agent";
         String sampleRSController = "controllers.multiPlayer.sampleRS.Agent";
         String humanController = "controllers.multiPlayer.human.Agent";
-        String macroRHEA = "controllers.multiPlayer.RHEA.Agent";
+        String RHEA = "controllers.multiPlayer.RHEA.Agent";
 
         // Set here the controllers used in the games (need 2 separated by
         // space).
-        String controllers = humanController  + " " + macroRHEA;
-        // String controllers = sampleOLMCTSController + " " +
-        // sampleOLMCTSController;
+        String controllers = humanController  + " " + RHEA;
 
         // Available games:
         String gamesPath = "examples/2player/";
-        String games[] = new String[] {};
-
-        // All public games
-        games = new String[] { "hunger-games" };
+        String games[] = new String[] { "hunger-games" };
 
         // Other settings
         boolean visuals = true;
