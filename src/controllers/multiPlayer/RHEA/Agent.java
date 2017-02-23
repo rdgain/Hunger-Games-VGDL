@@ -79,12 +79,13 @@ public class Agent extends AbstractMultiPlayer {
     private int m_lastMacroAction;
     private boolean m_throwPop;
 
-    private Vector2d lastDiffPos, targetPos;
+    private Vector2d lastDiffPos, targetPos, thispos;
     private int ATTACK_DIST = 5;
     private int RESOURCE_DIST = 5;
     private double ATTACK_BREAK = 0.5; // chance to recklessly attack enemy, the bigger the more aggressive
 
     private boolean changed;
+    int fsm;
 
 
     private int playerID, opponentID, noPlayers;
@@ -96,18 +97,20 @@ public class Agent extends AbstractMultiPlayer {
      * @param elapsedTimer Timer for the controller creation.
      */
     public Agent(StateObservationMulti stateObs, ElapsedCpuTimer elapsedTimer, int playerID) {
+        lastDiffPos = stateObs.getAvatarPosition(playerID);
+        targetPos = lastDiffPos;
+        thispos = lastDiffPos;
+        fsm = 0;
+        ATTACK_DIST *= stateObs.getBlockSize();
+        RESOURCE_DIST *= stateObs.getBlockSize();
+        changed = false;
+
         randomGenerator = new Random();
         this.playerID = playerID;
         noPlayers = stateObs.getNoPlayers();
         opponentID = (playerID+1)%noPlayers;
         heuristic = new SimpleStateHeuristic(stateObs);
         this.timer = elapsedTimer;
-
-        lastDiffPos = stateObs.getAvatarPosition(playerID);
-        targetPos = lastDiffPos;
-        ATTACK_DIST *= stateObs.getBlockSize();
-        RESOURCE_DIST *= stateObs.getBlockSize();
-        changed = false;
 
         m_actionsLeft = 0;
         m_lastMacroAction = -1;
@@ -123,6 +126,38 @@ public class Agent extends AbstractMultiPlayer {
     public Types.ACTIONS act(StateObservationMulti stateObs, ElapsedCpuTimer elapsedTimer) {
 
         MCTS_BUDGET = MAX_FM_CALLS / 2;
+
+        //decide state we're in
+        thispos = stateObs.getAvatarPosition(playerID);
+
+        SIMULATION_DEPTH = 8;
+        if (isOpponentInRange(stateObs)) {
+            SIMULATION_DEPTH = 3;
+            if (canFight(stateObs)) {
+                fsm = 2;
+            } else {
+                fsm = 3;
+            }
+        } else if  (isEnemyInRange(stateObs)) {
+            fsm = 2;
+            SIMULATION_DEPTH = 3;
+        } else if (isResourceNear(stateObs)) {
+            fsm = 1;
+        } else {
+            fsm = 0;
+            if (!thispos.equals(lastDiffPos)) {
+                lastDiffPos = thispos;
+                changed = true;
+            }
+            ArrayList<Observation>[][] obsGrid = stateObs.getObservationGrid();
+            int blockSize = stateObs.getBlockSize();
+            int x = (int)thispos.x/blockSize;
+            int y = (int)thispos.y/blockSize;
+            int height = obsGrid.length;
+            int width = obsGrid[0].length;
+            targetPos = new Vector2d ((width-x)*blockSize,(height-y)*blockSize);
+            heuristic.setTargetPos(targetPos);
+        }
 
         numCalls = 0;
         this.timer = elapsedTimer;
@@ -279,36 +314,6 @@ public class Agent extends AbstractMultiPlayer {
      * @return - value of last state reached
      */
     private double evaluate(Individual individual, StateHeuristicMulti heuristic, StateObservationMulti state, double avg, long remaining) {
-
-        //decide state we're in
-        Vector2d thispos = state.getAvatarPosition(playerID);
-
-        int fsm;
-        if (isOpponentInRange(state)) {
-            if (canFight(state)) {
-                fsm = 2;
-            } else {
-                fsm = 3;
-            }
-        } else if  (isEnemyInRange(state)) {
-            fsm = 2;
-        } else if (isResourceNear(state)) {
-            fsm = 1;
-        } else {
-            fsm = 0;
-            if (!thispos.equals(lastDiffPos)) {
-                lastDiffPos = thispos;
-                changed = true;
-            }
-            ArrayList<Observation>[][] obsGrid = state.getObservationGrid();
-            int blockSize = state.getBlockSize();
-            int x = (int)thispos.x/blockSize;
-            int y = (int)thispos.y/blockSize;
-            int height = obsGrid.length;
-            int width = obsGrid[0].length;
-            targetPos = new Vector2d ((width-x)*blockSize,(height-y)*blockSize);
-            heuristic.setTargetPos(targetPos);
-        }
 
         ElapsedCpuTimer elapsedTimerIterationEval = new ElapsedCpuTimer();
 

@@ -132,6 +132,10 @@ public class SimpleStateHeuristic extends StateHeuristicMulti {
 
         double distanceToOpponent = avatarPosition.dist(stateObs.getAvatarPosition(oppID));
         double distance = Math.min(distanceToOpponent, minDistanceNPC);
+        double distanceToTargetPos;
+        if (targetPos != null)
+            distanceToTargetPos = avatarPosition.dist(targetPos)/stateObs.getBlockSize();
+        else distanceToTargetPos = 0;
         int hp = stateObs.getAvatarHealthPoints(playerID);
 
         double score = BIG_WEIGHT * firstState.getGameScore(playerID);
@@ -146,7 +150,7 @@ public class SimpleStateHeuristic extends StateHeuristicMulti {
             default: score += resourceCount -
                     (stateObs.getAvatarLastPosition(playerID).equals(avatarPosition)
                             || !changed ? 1 : 0) * PENALTY + distMoved
-                    - avatarPosition.dist(targetPos)/stateObs.getBlockSize() * MEDIUM_WEIGHT + hp * SMALL_WEIGHT;
+                    - distanceToTargetPos * MEDIUM_WEIGHT + hp * SMALL_WEIGHT;
 
         }
 
